@@ -19,8 +19,8 @@ fn main() {
 fn setup( mut mapinfo: ResMut<MapInfo>, mut cellsize: ResMut<CellSize>, mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn(Camera2d);
 
-    mapinfo.map_width = 3;
-    mapinfo.map_height = 3;
+    mapinfo.map_width = 4;
+    mapinfo.map_height = 4;
     cellsize.cell_scale = 50;
 
     let size_x = mapinfo.map_width;
@@ -217,26 +217,20 @@ fn click_event( cellsize: Res<CellSize>, mapinfo: Res<MapInfo>, mouse: Res<Butto
         let window_width = window.width();
         let window_height = window.height();
 
-        let width = mapinfo.map_width;
-        let height = mapinfo.map_height;
+        let size_x = mapinfo.map_width;
+        let size_y = mapinfo.map_height;
 
         let cell_size = cellsize.cell_scale;
 
         if let Some(pos) = window.cursor_position() {
 
-            let map_x: i32;
-            let map_y: i32;
-            if width % 2 == 0{
-                map_x = ((pos[0] - (window_width/2.0))/cell_size as f32 + width as f32 /2.0).floor() as i32;
-            } else {
-                map_x = ((pos[0] - (window_width/2.0))/cell_size as f32 + width as f32 /2.0 + cell_size as f32/20.0).floor() as i32;
-            }
-            if height % 2 == 0{
-                map_y = (-(pos[1] - (window_height/2.0))/cell_size as f32 + height as f32 /2.0).floor() as i32;
-            } else {
-                map_y = (-(pos[1] - (window_height/2.0))/cell_size as f32 + height as f32 /2.0 + cell_size as f32/20.0).floor() as i32;
-            }
+            let world_x : i32;
+            let world_y: i32;
+                world_x = (pos[0] - window_width/2.0).floor() as i32;
+                world_y = -(pos[1] - window_height/2.0).floor() as i32;
 
+            let map_x = ((world_x as f32 + (size_x * cell_size / 2) as f32) / cell_size as f32).floor() as i32;
+            let map_y = ((world_y as f32 + (size_y * cell_size / 2) as f32) / cell_size as f32).floor() as i32;
 
             //println!("マウス座標: {:?}__{:?}", pos[0]-(1280.0/2.0),-(pos[1]-(720.0/2.0)));
             println!("ワールド座標: {:?}__{:?}", map_x,map_y);
@@ -270,8 +264,8 @@ fn click_event( cellsize: Res<CellSize>, mapinfo: Res<MapInfo>, mouse: Res<Butto
                 let queue_pop = queue.pop().unwrap();
                 let pop_x = queue_pop[0];
                 let pop_y = queue_pop[1];
-                let map_x = pop_x as i32 + width/2;
-                let map_y = pop_y as i32 + height/2;
+                let map_x = pop_x as i32 + size_x/2;
+                let map_y = pop_y as i32 + size_y/2;
 
                 //map[map_y][map_x] = num_convert(hint_num[pop_x][pop_y]);
 
