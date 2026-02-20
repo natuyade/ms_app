@@ -45,37 +45,41 @@ struct MapInfo {
     map_width: i32,
     map_height: i32,
     bomb_percent: i32,
-    bomb_offset: Vec<Vec<usize>>,
+    bomb_offset: Vec<Vec<i32>>,
     hint_number: Vec<Vec<usize>>,
 }
 
 
 impl MapInfo {
     fn new(base_size_x: i32, base_size_y: i32, base_percent: i32) -> Self {
-        fn map_builder(base_size_x: i32, base_size_y: i32, offset: &[Vec<usize>]) -> Vec<Vec<usize>> {
+        fn map_builder(base_size_x: i32, base_size_y: i32, offset: &[Vec<i32>]) -> Vec<Vec<usize>> {
             let mut map: Vec<Vec<usize>> = vec![vec![0; base_size_x as usize]; base_size_y as usize];
 
-            let pop_x = 0i32;
-            let pop_y = 0i32;
-
-            for dy in -1..=1 {
-                for dx in -1..=1 {
-                    let nx = pop_x + dx;
-                    let ny = pop_y + dy;
+            for i in 0..offset.len() {
+                let offset_x = offset[i][0];
+                let offset_y = offset[i][1];
+                for dy in -1..=1 {
+                    for dx in -1..=1 {
 
                     if dx == 0 && dy == 0 {
                         continue
                     }
 
+                    let nx = offset_x + dx;
+                    let ny = offset_y + dy;
+
+
                     if nx >= 0 && ny >= 0 && nx <= base_size_x -1 && ny <= base_size_y -1 {
+                        map[ny as usize][nx as usize] += 1;
                     }
                 }
+            }
             }
 
             for i in 0..offset.len() {
                 let offset_x = offset[i][0];
                 let offset_y = offset[i][1];
-                map[offset_y][offset_x] = 9;
+                map[offset_y as usize][offset_x as usize] = 9;
             }
 
             for y in map.iter() {
@@ -87,11 +91,11 @@ impl MapInfo {
 
             map
         }
-        fn set_offset_random(base_size_x: i32, base_size_y: i32, percent: i32) -> Vec<Vec<usize>> {
-            let mut offset: Vec<Vec<usize>> = vec![];
+        fn set_offset_random(base_size_x: i32, base_size_y: i32, percent: i32) -> Vec<Vec<i32>> {
+            let mut offset: Vec<Vec<i32>> = vec![];
             let mut num_of_bomb = ((base_size_x * base_size_y) * percent / 100) as usize;
-            let rand_x = fastrand::usize(0..base_size_x as usize);
-            let rand_y = fastrand::usize(0..base_size_y as usize);
+            let rand_x = fastrand::i32(0..base_size_x);
+            let rand_y = fastrand::i32(0..base_size_y);
             offset.push(vec![rand_x, rand_y]);
 
             if num_of_bomb == 0 {
@@ -100,13 +104,13 @@ impl MapInfo {
             while offset.len() != num_of_bomb {
                 println!("{}:{}",offset.len(),num_of_bomb);
                 let mut offset_bool:Vec<bool> = vec![];
-                let gate_x = fastrand::usize(0..base_size_x as usize);
-                let gate_y = fastrand::usize(0..base_size_y as usize);
+                let gate_x = fastrand::i32(0..base_size_x);
+                let gate_y = fastrand::i32(0..base_size_y);
                 for i in 0..offset.len() {
-                    if offset[i][0] != gate_x && offset[i][1] != gate_y&&offset.len() != num_of_bomb {
+                    if offset[i][0] != gate_x && offset[i][1] != gate_y && offset.len() != num_of_bomb {
                         offset_bool.push(true);
                     }
-                    if offset[i][0] == gate_x && offset[i][1] == gate_y&&offset.len() != num_of_bomb {
+                    if offset[i][0] == gate_x && offset[i][1] == gate_y && offset.len() != num_of_bomb {
                         offset_bool.push(false);
                     }
 

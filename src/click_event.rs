@@ -16,9 +16,9 @@ pub fn click_event(cellsize: Res<CellSize>, mapinfo: Res<MapInfo>, mouse: Res<Bu
 
         let hint_num = &mapinfo.hint_number;
 
-        let mut queue: Vec<Vec<usize>> = vec![];
-
         let cell_size = cellsize.cell_scale;
+
+        let mut queue: Vec<Vec<i32>> = vec![];
 
         if let Some(pos) = window.cursor_position() {
 
@@ -29,68 +29,59 @@ pub fn click_event(cellsize: Res<CellSize>, mapinfo: Res<MapInfo>, mouse: Res<Bu
             let map_y = ((world_y as f32 + (size_y * cell_size / 2) as f32) / cell_size as f32).floor() as i32;
 
             if map_x >= 0 && map_y >= 0 && map_x <= size_x-1 && map_y <= size_y-1 {
-                queue.push(vec![map_x as usize, map_y as usize]);
-                println!("queue: {:?}", queue);
-                let queue_pop = queue.pop().unwrap();
-                let pop_x = queue_pop[0];
-                let pop_y = queue_pop[1];
-                for (cell, mut state, mut text) in cells.iter_mut() {
-                    if cell.cell_x == map_x && cell.cell_y == map_y {
-                        if state.opened == false {
-                            *text = Text2d::new(num_convert(hint_num[pop_y][pop_x]));
-                        }
-                    }
-                }
-            }
-            //while !queue.is_empty() {
-            /*
-                            if hint_num[pop_y][pop_x] != 0 {
-                                continue
-                            }
-                            for dy in -1i32..=1 {
-                                for dx in -1i32..=1 {
-                                    let nx = pop_x as i32 + dx;
-                                    let ny = pop_y as i32 + dy;
-            
-                                    if dx == -1 && dy == -1 {
-                                        continue
-                                    }
-                                    if dx == 1 && dy == -1 {
-                                        continue
-                                    }
-                                    if dx == 0 && dy == 0 {
-                                        continue
-                                    }
-                                    if dx == -1 && dy == 1 {
-                                        continue
-                                    }
-                                    if dx == 1 && dy == 1 {
-                                        continue
-                                    }
-            
-                                    if nx >= 0 && ny >= 0 && nx <= size_x -1 && ny <= size_y -1 {
-                                            queue.push(vec![nx as usize, ny as usize])
-                                    }
-                                }
-                            }
-            
-                        }
-            
-                        //println!("マウス座標: {:?}__{:?}", pos[0]-(1280.0/2.0),-(pos[1]-(720.0/2.0)));
-                        println!("ワールド座標: {:?}__{:?}", map_x,map_y);
-                        for (cell, mut state, mut text) in cells.iter_mut() {
-                            if cell.cell_x == map_x && cell.cell_y == map_y {
+                println!("マウス座標: {:?}__{:?}", world_x,world_y);
+                println!("ワールド座標: {:?}__{:?}", map_x,map_y);
+                queue.push(vec![map_x, map_y]);
+                while !queue.is_empty() {
+                    println!("queue: {:?}", queue);
+                    let queue_pop = queue.pop().unwrap();
+                    let pop_x = queue_pop[0];
+                    let pop_y = queue_pop[1];
+                    for (cell, mut state, mut text) in cells.iter_mut() {
+                        if cell.cell_x == pop_x && cell.cell_y == pop_y {
+                            if hint_num[pop_y as usize][pop_x as usize] != 0 {
                                 if state.opened == false {
                                     state.opened = true;
-                                    println!("wcell_x:{} cell_y:{}",cell.cell_x,cell.cell_y);
-                                } else {
-                                    *text = Text2d::new("⬛");
-                                    state.opened = false;
-                                    println!("cell_x:{} cell_y:{}",cell.cell_x, cell.cell_y);
+                                    *text = Text2d::new(num_convert(hint_num[pop_y as usize][pop_x as usize]));
+                                }
+                                continue
+                            }
+                            if state.opened == false {
+                                state.opened = true;
+                                *text = Text2d::new(num_convert(hint_num[pop_y as usize][pop_x as usize]));
+                                for dy in -1i32..=1 {
+                                    for dx in -1i32..=1 {
+                                        let nx = pop_x + dx;
+                                        let ny = pop_y + dy;
+
+                                        if dx == -1 && dy == -1 {
+                                            continue
+                                        }
+                                        if dx == 1 && dy == -1 {
+                                            continue
+                                        }
+                                        if dx == 0 && dy == 0 {
+                                            continue
+                                        }
+                                        if dx == -1 && dy == 1 {
+                                            continue
+                                        }
+                                        if dx == 1 && dy == 1 {
+                                            continue
+                                        }
+
+                                        if nx >= 0 && ny >= 0 && nx <= size_x -1 && ny <= size_y -1 {
+                                            queue.push(vec![nx, ny])
+                                        }
+                                    }
                                 }
                             }
-                        }*/
+                        }
+                    }
 
+                    println!("queue_loop");
+                }
+            }
         }
     }
 }
