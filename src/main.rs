@@ -1,28 +1,53 @@
 use bevy::prelude::*;
 
-mod convert_num;
-mod startup;
 mod click_event;
+mod convert_num;
+mod setup_msmap;
+mod start_button;
+mod title;
 
-use crate::startup::setup;
 use crate::click_event::click_event;
+use crate::setup_msmap::{clean_ms, setup_ms};
+use crate::title::{clean_title, setup_title, title_start};
+
+#[derive(States, Debug, Clone, PartialEq, Eq, Hash, Default)]
+enum AppState {
+    #[default]
+    Title,
+    Playing,
+}
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
-        .insert_resource(
-        MapInfo {
+        .init_state::<AppState>()
+        .insert_resource(MapInfo {
             map_width: 0,
             map_height: 0,
             bomb_percent: 0,
             bomb_offset: vec![],
             hint_number: vec![],
         })
-        .insert_resource(CellSize { cell_scale: 0, })
-        .add_systems(Startup, setup)
-        .add_systems(Update, click_event)
+        .insert_resource(CellSize { cell_scale: 0 })
+        .add_systems(OnEnter(AppState::Title), setup_title)
+        .add_systems(OnExit(AppState::Title), clean_title)
+        .add_systems(OnEnter(AppState::Playing), setup_ms)
+        .add_systems(OnExit(AppState::Playing), clean_ms)
+        .add_systems(
+            Update,
+            (
+                title_start.run_if(in_state(AppState::Title)),
+                click_event.run_if(in_state(AppState::Playing)),
+            ),
+        )
         .run();
 }
+
+#[derive(Component)]
+struct TitleLayer;
+
+#[derive(Component)]
+struct GameLayer;
 
 #[derive(Component)]
 struct Cell {
@@ -49,31 +74,29 @@ struct MapInfo {
     hint_number: Vec<Vec<usize>>,
 }
 
-
 impl MapInfo {
     fn new(base_size_x: i32, base_size_y: i32, base_percent: i32) -> Self {
         fn map_builder(base_size_x: i32, base_size_y: i32, offset: &[Vec<i32>]) -> Vec<Vec<usize>> {
-            let mut map: Vec<Vec<usize>> = vec![vec![0; base_size_x as usize]; base_size_y as usize];
+            let mut map: Vec<Vec<usize>> =
+                vec![vec![0; base_size_x as usize]; base_size_y as usize];
 
             for i in 0..offset.len() {
                 let offset_x = offset[i][0];
                 let offset_y = offset[i][1];
                 for dy in -1..=1 {
                     for dx in -1..=1 {
+                        if dx == 0 && dy == 0 {
+                            continue;
+                        }
 
-                    if dx == 0 && dy == 0 {
-                        continue
-                    }
+                        let nx = offset_x + dx;
+                        let ny = offset_y + dy;
 
-                    let nx = offset_x + dx;
-                    let ny = offset_y + dy;
-
-
-                    if nx >= 0 && ny >= 0 && nx <= base_size_x -1 && ny <= base_size_y -1 {
-                        map[ny as usize][nx as usize] += 1;
+                        if nx >= 0 && ny >= 0 && nx <= base_size_x - 1 && ny <= base_size_y - 1 {
+                            map[ny as usize][nx as usize] += 1;
+                        }
                     }
                 }
-            }
             }
 
             for i in 0..offset.len() {
@@ -102,20 +125,25 @@ impl MapInfo {
                 num_of_bomb = 1;
             }
             while offset.len() != num_of_bomb {
-                println!("{}:{}",offset.len(),num_of_bomb);
-                let mut offset_bool:Vec<bool> = vec![];
+                println!("{}:{}", offset.len(), num_of_bomb);
+                let mut offset_bool: Vec<bool> = vec![];
                 let gate_x = fastrand::i32(0..base_size_x);
                 let gate_y = fastrand::i32(0..base_size_y);
                 for i in 0..offset.len() {
-                    if offset[i][0] != gate_x && offset[i][1] != gate_y && offset.len() != num_of_bomb {
+                    if offset[i][0] != gate_x
+                        && offset[i][1] != gate_y
+                        && offset.len() != num_of_bomb
+                    {
                         offset_bool.push(true);
                     }
-                    if offset[i][0] == gate_x && offset[i][1] == gate_y && offset.len() != num_of_bomb {
+                    if offset[i][0] == gate_x
+                        && offset[i][1] == gate_y
+                        && offset.len() != num_of_bomb
+                    {
                         offset_bool.push(false);
                     }
-
                 }
-                if offset_bool.iter().all(|&bool|bool) == true {
+                if offset_bool.iter().all(|&bool| bool) == true {
                     offset.push(vec![gate_x, gate_y])
                 }
             }
