@@ -8,7 +8,7 @@ mod title;
 
 use crate::click_event::click_event;
 use crate::setup_msmap::{clean_ms, setup_ms};
-use crate::title::{clean_title, setup_title, title_start};
+use crate::title::{clean_title, map_setting, setup_title, title_start};
 
 #[derive(States, Debug, Clone, PartialEq, Eq, Hash, Default)]
 enum AppState {
@@ -29,6 +29,11 @@ fn main() {
             hint_number: vec![],
         })
         .insert_resource(CellSize { cell_scale: 0 })
+        .insert_resource(MapSettings {
+            value_map_width: 10,
+            value_map_height: 10,
+            value_bomb_percent: 10,
+        })
         .add_systems(OnEnter(AppState::Title), setup_title)
         .add_systems(OnExit(AppState::Title), clean_title)
         .add_systems(OnEnter(AppState::Playing), setup_ms)
@@ -37,6 +42,7 @@ fn main() {
             Update,
             (
                 title_start.run_if(in_state(AppState::Title)),
+                map_setting.run_if(in_state(AppState::Title)),
                 click_event.run_if(in_state(AppState::Playing)),
             ),
         )
@@ -72,6 +78,30 @@ struct MapInfo {
     bomb_percent: i32,
     bomb_offset: Vec<Vec<i32>>,
     hint_number: Vec<Vec<usize>>,
+}
+
+#[derive(Resource)]
+struct MapSettings {
+    value_map_width: i32,
+    value_map_height: i32,
+    value_bomb_percent: i32,
+}
+impl Default for MapSettings {
+    fn default() -> Self {
+        Self {
+            value_map_width: 12,
+            value_map_height: 12,
+            value_bomb_percent: 8,
+        }
+    }
+}
+
+#[derive(Component)]
+enum SettingButton {
+    OneUp,
+    OneDown,
+    TenUp,
+    TenDown,
 }
 
 impl MapInfo {
