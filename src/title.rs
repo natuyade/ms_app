@@ -154,19 +154,30 @@ pub fn title_start(
 
 pub fn map_setting(
     // Changedでinteraction処理がされたentityだけを指定でき,離されたintsも受け取れるため処理が毎フレーム行われない.
-    buttons_query: Query<(&Interaction, &SettingButton), Changed<Interaction>>,
+    mut buttons_query: Query<(&Interaction, &SettingButton, &mut Text), Changed<Interaction>>,
     mut settings: ResMut<MapSettings>,
 ) {
-    for (ints, buttons) in &buttons_query {
+    for (ints, buttons, mut text) in &mut buttons_query {
         if *ints == Interaction::Pressed {
+            let now_button;
             match buttons {
-                SettingButton::TenDown => settings.value_map_width -= 10,
-                SettingButton::OneDown => settings.value_map_width -= 1,
-                SettingButton::OneUp => settings.value_map_width += 1,
-                SettingButton::TenUp => settings.value_map_width += 10,
+                SettingButton::TenDown => now_button = 1,
+                SettingButton::OneDown => now_button = 2,
+                SettingButton::OneUp => now_button = 3,
+                SettingButton::TenUp => now_button = 4,
             }
+            match now_button {
+                1 => settings.value_map_width -= 10,
+                2 => settings.value_map_width -= 1,
+                3 => settings.value_map_width += 1,
+                4 => settings.value_map_width += 10,
+                _ => settings.value_map_width += 0,
+            }
+
+            *text = Text::from(settings.value_map_width.to_string());
+
+            println!("{}", settings.value_map_width);
         }
-        println!("{}", settings.value_map_width)
     }
 }
 
@@ -175,3 +186,5 @@ pub fn clean_title(mut commands: Commands, query: Query<Entity, With<TitleLayer>
         commands.entity(entity).despawn()
     }
 }
+
+fn update_number() {}
