@@ -1,18 +1,17 @@
-use crate::{Cell, CellSize, MapInfo, MapSettings, OpenState};
+use crate::{Cell, CellSize, MapInfo, OpenState};
 use bevy::prelude::*;
 
 use crate::GameLayer;
 pub fn setup_ms(
     mut mapinfo: ResMut<MapInfo>,
-    mapsettings: Res<MapSettings>,
     mut cellsize: ResMut<CellSize>,
     mut commands: Commands,
     asset_server: Res<AssetServer>,
 ) {
-    let size_x = mapsettings.value_map_width;
-    let size_y = mapsettings.value_map_height;
-    let bomb_percent = mapsettings.value_bomb_percent;
-    let cell_size = 100;
+    let size_x = mapinfo.map_width;
+    let size_y = mapinfo.map_height;
+    let bomb_percent = mapinfo.bomb_percent;
+    let cell_size = 36;
 
     let map_build = MapInfo::new(size_x, size_y, bomb_percent);
 

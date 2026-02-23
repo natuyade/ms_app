@@ -22,18 +22,12 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .init_state::<AppState>()
         .insert_resource(MapInfo {
-            map_width: 0,
-            map_height: 0,
-            bomb_percent: 0,
-            bomb_offset: vec![],
+            map_width: 10,
+            map_height: 10,
+            bomb_percent: 10,
             hint_number: vec![],
         })
         .insert_resource(CellSize { cell_scale: 0 })
-        .insert_resource(MapSettings {
-            value_map_width: 10,
-            value_map_height: 10,
-            value_bomb_percent: 10,
-        })
         .add_systems(OnEnter(AppState::Title), setup_title)
         .add_systems(OnExit(AppState::Title), clean_title)
         .add_systems(OnEnter(AppState::Playing), setup_ms)
@@ -76,26 +70,15 @@ struct MapInfo {
     map_width: i32,
     map_height: i32,
     bomb_percent: i32,
-    bomb_offset: Vec<Vec<i32>>,
     hint_number: Vec<Vec<usize>>,
 }
 
-#[derive(Resource)]
-struct MapSettings {
-    value_map_width: i32,
-    value_map_height: i32,
-    value_bomb_percent: i32,
+#[derive(Component)]
+enum SettingType {
+    Width,
+    Height,
+    BombPercent,
 }
-impl Default for MapSettings {
-    fn default() -> Self {
-        Self {
-            value_map_width: 12,
-            value_map_height: 12,
-            value_bomb_percent: 8,
-        }
-    }
-}
-
 #[derive(Component)]
 enum SettingButton {
     OneUp,
@@ -187,7 +170,6 @@ impl MapInfo {
             map_width: base_size_x,
             map_height: base_size_y,
             bomb_percent: base_percent,
-            bomb_offset: set_bomb_offset,
             hint_number: set_hint_num,
         }
     }
