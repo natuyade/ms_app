@@ -1,8 +1,15 @@
 use bevy::prelude::*;
-use crate::{Cell, CellSize, MapInfo, OpenState};
-use crate::convert_num::num_convert;
+use crate::{AppState, Cell, CellSize, MapInfo, OpenState, SettingButton};
 
-pub fn click_event(cellsize: Res<CellSize>, mapinfo: Res<MapInfo>, mouse: Res<ButtonInput<MouseButton>>, mut cells: Query<(&Cell, &mut OpenState, &mut Text2d)>, windows: Query<&Window>) {
+pub fn click_event(
+    cellsize: Res<CellSize>,
+    mapinfo: Res<MapInfo>,
+    mouse: Res<ButtonInput<MouseButton>>,
+    mut cells: Query<(&Cell, &mut OpenState, &mut Text2d)>,
+    windows: Query<&Window>,
+    mut next_state: ResMut<NextState<AppState>>
+)
+    {
     if mouse.just_pressed(MouseButton::Left) {
 
 
@@ -33,13 +40,15 @@ pub fn click_event(cellsize: Res<CellSize>, mapinfo: Res<MapInfo>, mouse: Res<Bu
                 println!("ワールド座標: {:?}__{:?}", map_x,map_y);
                 queue.push(vec![map_x, map_y]);
                 while !queue.is_empty() {
-                    println!("queue: {:?}", queue);
                     let queue_pop = queue.pop().unwrap();
                     let pop_x = queue_pop[0];
                     let pop_y = queue_pop[1];
                     for (cell, mut state, mut text) in cells.iter_mut() {
                         if cell.cell_x == pop_x && cell.cell_y == pop_y {
                             if hint_num[pop_y as usize][pop_x as usize] != 0 {
+                                if hint_num[pop_y as usize][pop_x as usize] == 9 {
+                                    next_state.set(AppState::GameOver);
+                                }
                                 if state.opened == false {
                                     state.opened = true;
                                     *text = Text2d::new(num_convert(hint_num[pop_y as usize][pop_x as usize]));
@@ -78,10 +87,24 @@ pub fn click_event(cellsize: Res<CellSize>, mapinfo: Res<MapInfo>, mouse: Res<Bu
                             }
                         }
                     }
-
-                    println!("queue_loop");
                 }
             }
         }
+    }
+}
+
+fn num_convert(number: usize) -> String {
+    match number {
+        0 => "0⃣".to_string(),
+        1 => "1⃣".to_string(),
+        2 => "2⃣".to_string(),
+        3 => "3⃣".to_string(),
+        4 => "4⃣".to_string(),
+        5 => "5⃣".to_string(),
+        6 => "6⃣".to_string(),
+        7 => "7⃣".to_string(),
+        8 => "8⃣".to_string(),
+        9 => "9⃣".to_string(),
+        _ => "".to_string()
     }
 }

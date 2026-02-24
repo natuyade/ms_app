@@ -4,6 +4,7 @@ use bevy::ui::PositionType::*;
 use crate::{MapInfo, SettingButton, SettingType, TitleLayer};
 
 pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapinfo: Res<MapInfo>) {
+
     commands.spawn(Camera2d);
 
     commands
@@ -19,7 +20,9 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
             },
             TitleLayer,
         ))
+
         .with_children(|parent| {
+
             // title logo
             parent.spawn((
                 Node {
@@ -28,6 +31,7 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
                     justify_content: JustifyContent::Center,
                     align_items: AlignItems::Center,
                     top: Val::Percent(28.0),
+
                     ..Default::default()
                 },
                 Text::new("MineSweepish"),
@@ -37,6 +41,36 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
                     ..Default::default()
                 },
             ));
+            // start button
+            parent
+                .spawn((
+                    Node {
+                        position_type: Absolute,
+                        display: Display::Flex,
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        top: Val::Percent(70.0),
+                        width: Val::Px(240.0),
+                        height: Val::Px(64.0),
+                        ..Default::default()
+                    },
+                    Button,
+                    BackgroundColor(Color::srgb(0.5, 0.5, 0.5)),
+                ))
+                .with_children(|button| {
+                    button.spawn((
+                        Node {
+                            ..Default::default()
+                        },
+                        Text::new("スタート"),
+                        TextFont {
+                            font: asset_server.load("fonts/unifont-17.0.03.otf"),
+                            font_size: 48.0,
+                            ..default()
+                        },
+                        TextColor(Color::srgb(0.0, 1.0, 0.0)),
+                    ));
+                });
 
             // setting buttons
             let map_width = mapinfo.map_width;
@@ -243,43 +277,12 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
                         BackgroundColor(Color::srgb(0.0, 0.4, 0.0)),
                     ));
                 });
-
-            // start button
-            parent
-                .spawn((
-                    Node {
-                        position_type: Absolute,
-                        display: Display::Flex,
-                        justify_content: JustifyContent::Center,
-                        align_items: AlignItems::Center,
-                        top: Val::Percent(70.0),
-                        width: Val::Px(240.0),
-                        height: Val::Px(64.0),
-                        ..Default::default()
-                    },
-                    Button,
-                    BackgroundColor(Color::srgb(0.5, 0.5, 0.5)),
-                ))
-                .with_children(|button| {
-                    button.spawn((
-                        Node {
-                            ..Default::default()
-                        },
-                        Text::new("スタート"),
-                        TextFont {
-                            font: asset_server.load("fonts/unifont-17.0.03.otf"),
-                            font_size: 48.0,
-                            ..default()
-                        },
-                        TextColor(Color::srgb(0.0, 1.0, 0.0)),
-                    ));
-                });
         });
 }
 
 use crate::AppState;
 
-pub fn title_start(
+pub fn start_button(
     ints_query: Query<&Interaction, (With<Button>, Without<SettingButton>)>,
     mut next_state: ResMut<NextState<AppState>>,
 ) {
@@ -298,62 +301,33 @@ pub fn map_setting(
 ) {
     for (ints, types, buttons) in &mut buttons_query {
         if *ints == Interaction::Pressed {
-            let now_type;
-            let now_button;
+            use crate::SettingButton::*;
+            use crate::SettingType::*;
 
-            match types {
-                SettingType::Width => now_type = 1,
-                SettingType::Height => now_type = 2,
-                SettingType::BombPercent => now_type = 3,
-            }
+            match (types, buttons) {
+                (Width, TenDown) => settings.map_width = (settings.map_width - 10).max(1).min(64),
+                (Width, OneDown) => settings.map_width = (settings.map_width - 1).max(1).min(64),
+                (Width, OneUp) => settings.map_width = (settings.map_width + 1).max(1).min(64),
+                (Width, TenUp) => settings.map_width = (settings.map_width + 10).max(1).min(64),
 
-            match buttons {
-                SettingButton::TenDown => now_button = 1,
-                SettingButton::OneDown => now_button = 2,
-                SettingButton::OneUp => now_button = 3,
-                SettingButton::TenUp => now_button = 4,
-            }
+                (Height, TenDown) => settings.map_height = (settings.map_height - 10).max(1).min(64),
+                (Height, OneDown) => settings.map_height = (settings.map_height - 1).max(1).min(64),
+                (Height, OneUp) => settings.map_height = (settings.map_height + 1).max(1).min(64),
+                (Height, TenUp) => settings.map_height = (settings.map_height + 10).max(1).min(64),
 
-            if now_type == 1 {
-                match now_button {
-                    1 => settings.map_width -= 10,
-                    2 => settings.map_width -= 1,
-                    3 => settings.map_width += 1,
-                    4 => settings.map_width += 10,
-                    _ => settings.map_width += 0,
-                }
-            }
-
-            if now_type == 2 {
-                match now_button {
-                    1 => settings.map_height -= 10,
-                    2 => settings.map_height -= 1,
-                    3 => settings.map_height += 1,
-                    4 => settings.map_height += 10,
-                    _ => settings.map_height += 0,
-                }
-            }
-
-            if now_type == 3 {
-                match now_button {
-                    1 => settings.bomb_percent -= 10,
-                    2 => settings.bomb_percent -= 1,
-                    3 => settings.bomb_percent += 1,
-                    4 => settings.bomb_percent += 10,
-                    _ => settings.bomb_percent += 0,
-                }
+                (BombPercent, TenDown) => settings.bomb_percent = (settings.bomb_percent - 10).max(1).min(99),
+                (BombPercent, OneDown) => settings.bomb_percent = (settings.bomb_percent - 1).max(1).min(99),
+                (BombPercent, OneUp) => settings.bomb_percent = (settings.bomb_percent + 1).max(1).min(99),
+                (BombPercent, TenUp) => settings.bomb_percent = (settings.bomb_percent + 10).max(1).min(99),
             }
 
             for (types, mut text) in &mut text_query {
                 match types {
-                    SettingType::Width => *text = Text::from(settings.map_width.to_string()),
-                    SettingType::Height => *text = Text::from(settings.map_height.to_string()),
-                    SettingType::BombPercent => {
-                        *text = Text::from(settings.bomb_percent.to_string())
-                    }
+                    Width => *text = Text::from(settings.map_width.to_string()),
+                    Height => *text = Text::from(settings.map_height.to_string()),
+                    BombPercent => *text = Text::from(settings.bomb_percent.to_string()),
                 }
             }
-            println!("{}", settings.map_width);
         }
     }
 }
@@ -363,5 +337,3 @@ pub fn clean_title(mut commands: Commands, query: Query<Entity, With<TitleLayer>
         commands.entity(entity).despawn()
     }
 }
-
-fn update_number() {}

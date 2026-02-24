@@ -5,16 +5,19 @@ mod convert_num;
 mod setup_msmap;
 mod start_button;
 mod title;
+mod gameover;
 
 use crate::click_event::click_event;
 use crate::setup_msmap::{clean_ms, setup_ms};
-use crate::title::{clean_title, map_setting, setup_title, title_start};
+use crate::title::{clean_title, map_setting, setup_title, start_button};
+use crate::gameover::{clean_gameover, setup_gameover, back_button};
 
 #[derive(States, Debug, Clone, PartialEq, Eq, Hash, Default)]
 enum AppState {
     #[default]
     Title,
     Playing,
+    GameOver,
 }
 
 fn main() {
@@ -32,12 +35,15 @@ fn main() {
         .add_systems(OnExit(AppState::Title), clean_title)
         .add_systems(OnEnter(AppState::Playing), setup_ms)
         .add_systems(OnExit(AppState::Playing), clean_ms)
+        .add_systems(OnEnter(AppState::GameOver), setup_gameover)
+        .add_systems(OnExit(AppState::GameOver), clean_gameover)
         .add_systems(
             Update,
             (
-                title_start.run_if(in_state(AppState::Title)),
+                start_button.run_if(in_state(AppState::Title)),
                 map_setting.run_if(in_state(AppState::Title)),
                 click_event.run_if(in_state(AppState::Playing)),
+                back_button.run_if(in_state(AppState::GameOver)),
             ),
         )
         .run();
@@ -48,6 +54,9 @@ struct TitleLayer;
 
 #[derive(Component)]
 struct GameLayer;
+
+#[derive(Component)]
+struct FailedLayer;
 
 #[derive(Component)]
 struct Cell {
@@ -138,7 +147,6 @@ impl MapInfo {
                 num_of_bomb = 1;
             }
             while offset.len() != num_of_bomb {
-                println!("{}:{}", offset.len(), num_of_bomb);
                 let mut offset_bool: Vec<bool> = vec![];
                 let gate_x = fastrand::i32(0..base_size_x);
                 let gate_y = fastrand::i32(0..base_size_y);
