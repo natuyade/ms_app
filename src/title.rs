@@ -5,8 +5,6 @@ use crate::{MapInfo, SettingButton, SettingType, TitleLayer};
 
 pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapinfo: Res<MapInfo>) {
 
-    commands.spawn(Camera2d);
-
     commands
         // rapper
         .spawn((
@@ -16,7 +14,7 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
                 justify_content: JustifyContent::Center,
                 width: Val::Percent(100.0),
                 height: Val::Percent(100.0),
-                ..Default::default()
+                ..default()
             },
             TitleLayer,
         ))
@@ -31,14 +29,13 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
                     justify_content: JustifyContent::Center,
                     align_items: AlignItems::Center,
                     top: Val::Percent(28.0),
-
-                    ..Default::default()
+                    ..default()
                 },
                 Text::new("MineSweepish"),
                 TextFont {
                     font: asset_server.load("fonts/unifont-17.0.03.otf"),
                     font_size: 64.0,
-                    ..Default::default()
+                    ..default()
                 },
             ));
             // start button
@@ -52,7 +49,7 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
                         top: Val::Percent(70.0),
                         width: Val::Px(240.0),
                         height: Val::Px(64.0),
-                        ..Default::default()
+                        ..default()
                     },
                     Button,
                     BackgroundColor(Color::srgb(0.5, 0.5, 0.5)),
@@ -60,7 +57,7 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
                 .with_children(|button| {
                     button.spawn((
                         Node {
-                            ..Default::default()
+                            ..default()
                         },
                         Text::new("スタート"),
                         TextFont {
@@ -89,7 +86,7 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
                         left: Val::Percent(70.0),
                         width: Val::Px(80.0),
                         height: Val::Px(32.0),
-                        ..Default::default()
+                        ..default()
                     },
                     BackgroundColor(Color::srgb(0.3, 0.3, 0.3)),
                 ))
@@ -110,7 +107,7 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
                             left: Val::Px(0.0),
                             width: Val::Px(24.0),
                             height: Val::Percent(100.0),
-                            ..Default::default()
+                            ..default()
                         },
                         Text::new("-1"),
                         TextFont {
@@ -129,7 +126,7 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
                             right: Val::Px(0.0),
                             width: Val::Px(24.0),
                             height: Val::Percent(100.0),
-                            ..Default::default()
+                            ..default()
                         },
                         Text::new("+1"),
                         TextFont {
@@ -156,7 +153,7 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
                         left: Val::Percent(70.0),
                         width: Val::Px(80.0),
                         height: Val::Px(32.0),
-                        ..Default::default()
+                        ..default()
                     },
                     BackgroundColor(Color::srgb(0.3, 0.3, 0.3)),
                 ))
@@ -177,7 +174,7 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
                             left: Val::Px(0.0),
                             width: Val::Px(24.0),
                             height: Val::Percent(100.0),
-                            ..Default::default()
+                            ..default()
                         },
                         Text::new("-1"),
                         TextFont {
@@ -196,7 +193,7 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
                             right: Val::Px(0.0),
                             width: Val::Px(24.0),
                             height: Val::Percent(100.0),
-                            ..Default::default()
+                            ..default()
                         },
                         Text::new("+1"),
                         TextFont {
@@ -223,7 +220,7 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
                         left: Val::Percent(70.0),
                         width: Val::Px(80.0),
                         height: Val::Px(32.0),
-                        ..Default::default()
+                        ..default()
                     },
                     BackgroundColor(Color::srgb(0.3, 0.3, 0.3)),
                 ))
@@ -244,7 +241,7 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
                             left: Val::Px(0.0),
                             width: Val::Px(24.0),
                             height: Val::Percent(100.0),
-                            ..Default::default()
+                            ..default()
                         },
                         Text::new("-1"),
                         TextFont {
@@ -263,7 +260,7 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
                             right: Val::Px(0.0),
                             width: Val::Px(24.0),
                             height: Val::Percent(100.0),
-                            ..Default::default()
+                            ..default()
                         },
                         Text::new("+1"),
                         TextFont {

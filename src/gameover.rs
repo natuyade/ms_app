@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::{AppState, FailedLayer, SettingButton};
+use crate::{AppState, FailedLayer};
 
 pub fn setup_gameover( mut commands: Commands, asset_server: Res<AssetServer> ) {
     commands.spawn((
@@ -9,10 +9,30 @@ pub fn setup_gameover( mut commands: Commands, asset_server: Res<AssetServer> ) 
             justify_content: JustifyContent::Center,
             width: Val::Percent(100.0),
             height: Val::Percent(100.0),
-            ..Default::default()
+            ..default()
         },
         FailedLayer,
         )).with_children(|parent| {
+
+        // gameover text
+        parent.spawn((
+            Node {
+                position_type: PositionType::Absolute,
+                display: Display::Flex,
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+                top: Val::Percent(28.0),
+                ..default()
+            },
+            Text::new("GAME OVER"),
+            TextFont {
+                font: asset_server.load("fonts/unifont-17.0.03.otf"),
+                font_size: 64.0,
+                ..default()
+            },
+            ));
+
+        // back button
         parent.spawn((
             Node {
                 position_type: PositionType::Absolute,
@@ -22,15 +42,12 @@ pub fn setup_gameover( mut commands: Commands, asset_server: Res<AssetServer> ) 
                 top: Val::Percent(50.0),
                 width: Val::Px(480.0),
                 height: Val::Px(64.0),
-                ..Default::default()
+                ..default()
             },
             Button,
             BackgroundColor(Color::srgb(0.5, 0.5, 0.5)),
         )).with_children(|button| {
             button.spawn((
-                Node {
-                    ..Default::default()
-                },
                 Text::new("タイトルに戻る"),
                 TextFont {
                     font: asset_server.load("fonts/unifont-17.0.03.otf"),

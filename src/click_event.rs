@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::{AppState, Cell, CellSize, MapInfo, OpenState, SettingButton};
+use crate::{AppState, Cell, CellSize, MapInfo, OpenState};
 
 pub fn click_event(
     cellsize: Res<CellSize>,
@@ -46,6 +46,7 @@ pub fn click_event(
                     for (cell, mut state, mut text) in cells.iter_mut() {
                         if cell.cell_x == pop_x && cell.cell_y == pop_y {
                             if hint_num[pop_y as usize][pop_x as usize] != 0 {
+
                                 if hint_num[pop_y as usize][pop_x as usize] == 9 {
                                     next_state.set(AppState::GameOver);
                                 }
@@ -54,6 +55,7 @@ pub fn click_event(
                                     *text = Text2d::new(num_convert(hint_num[pop_y as usize][pop_x as usize]));
                                 }
                                 continue
+
                             }
                             if state.opened == false {
                                 state.opened = true;

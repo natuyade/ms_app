@@ -24,6 +24,7 @@ fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .init_state::<AppState>()
+        .add_systems(Startup, setup_camera)
         .insert_resource(MapInfo {
             map_width: 10,
             map_height: 10,
@@ -47,6 +48,10 @@ fn main() {
             ),
         )
         .run();
+}
+
+fn setup_camera( mut commands: Commands ) {
+    commands.spawn(Camera2d);
 }
 
 #[derive(Component)]
