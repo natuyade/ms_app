@@ -90,9 +90,10 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
                     ..default()
                 },
                 BackgroundColor(Color::srgb(0.3, 0.3, 0.5)),
-                )).with_children(|rapper|{
+                )).with_children(|wrapper|{
 
-                rapper.spawn((
+                // size width
+                wrapper.spawn((
                     Node {
                         position_type: PositionType::Relative,
                         display: Display::Flex,
@@ -104,55 +105,77 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
                         ..default()
                     },
                     BackgroundColor(Color::srgb(1.0, 0.6, 0.6)),
-                    children![()]
-                ));
-                // size width
-                rapper
-                    .spawn((
+                )).with_children(|container|{
+
+                    // setting type
+                    container.spawn((
                         Node {
                             position_type: PositionType::Relative,
                             display: Display::Flex,
                             justify_content: JustifyContent::Center,
                             align_items: AlignItems::Center,
-                            left: Val::Px(72.0),
-                            width: Val::Px(128.0),
+                            left: Val::Px(0.0),
+                            width: Val::Px(72.0),
                             height: Val::Px(32.0),
                             ..default()
                         },
-                        BackgroundColor(Color::srgb(0.3, 0.3, 0.3)),
-                    ))
-                    .with_children(|button| {
-                        button.spawn((
-                            Text::new(map_width.to_string()),
+                        children![(
+                            Text::new("Cell WidthSize"),
                             TextFont {
                                 font: asset_server.load("fonts/unifont-17.0.03.otf"),
-                                font_size: 24.0,
+                                font_size: 16.0,
                                 ..default()
                             },
-                            SettingType::Width,
+                        )],
                         ));
 
-                        button.spawn((
+                    // setting buttons
+                    container
+                        .spawn((
                             Node {
-                                position_type: PositionType::Absolute,
+                                position_type: PositionType::Relative,
                                 display: Display::Flex,
                                 justify_content: JustifyContent::Center,
                                 align_items: AlignItems::Center,
-                                left: Val::ZERO,
-                                width: Val::Px(24.0),
-                                height: Val::Percent(100.0),
-                                border: UiRect {
-                                    bottom: Val::Px(2.0),
+                                right: Val::Px(0.0),
+                                width: Val::Px(128.0),
+                                height: Val::Px(32.0),
+                                ..default()
+                            },
+                            BackgroundColor(Color::srgb(0.3, 0.3, 0.3)),
+                        ))
+                        .with_children(|button| {
+                            button.spawn((
+                                Text::new(map_width.to_string()),
+                                TextFont {
+                                    font: asset_server.load("fonts/unifont-17.0.03.otf"),
+                                    font_size: 24.0,
                                     ..default()
                                 },
-                                ..default()
-                            },
-                            Button,
-                            SettingType::Width,
-                            SettingButton::TenDown,
-                            BackgroundColor(Color::srgb(0.0, 0.4, 0.0)),
-                            BorderColor::all(Color::BLACK),
-                            children![(
+                                SettingType::Width,
+                            ));
+
+                            button.spawn((
+                                Node {
+                                    position_type: PositionType::Absolute,
+                                    display: Display::Flex,
+                                    justify_content: JustifyContent::Center,
+                                    align_items: AlignItems::Center,
+                                    left: Val::ZERO,
+                                    width: Val::Px(24.0),
+                                    height: Val::Percent(100.0),
+                                    border: UiRect {
+                                        bottom: Val::Px(2.0),
+                                        ..default()
+                                    },
+                                    ..default()
+                                },
+                                Button,
+                                SettingType::Width,
+                                SettingButton::TenDown,
+                                BackgroundColor(Color::srgb(0.0, 0.4, 0.0)),
+                                BorderColor::all(Color::BLACK),
+                                children![(
                             Text::new("-10"),
                             TextFont {
                                 font: asset_server.load("fonts/unifont-17.0.03.otf"),
@@ -160,23 +183,23 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
                                 ..default()
                             },
                             )],
-                        ));
-                        button.spawn((
-                            Node {
-                                position_type: PositionType::Absolute,
-                                display: Display::Flex,
-                                justify_content: JustifyContent::Center,
-                                align_items: AlignItems::Center,
-                                left: Val::Px(24.0),
-                                width: Val::Px(24.0),
-                                height: Val::Percent(100.0),
-                                ..default()
-                            },
-                            Button,
-                            SettingType::Width,
-                            SettingButton::OneDown,
-                            BackgroundColor(Color::srgb(0.0, 0.4, 0.0)),
-                            children![(
+                            ));
+                            button.spawn((
+                                Node {
+                                    position_type: PositionType::Absolute,
+                                    display: Display::Flex,
+                                    justify_content: JustifyContent::Center,
+                                    align_items: AlignItems::Center,
+                                    left: Val::Px(24.0),
+                                    width: Val::Px(24.0),
+                                    height: Val::Percent(100.0),
+                                    ..default()
+                                },
+                                Button,
+                                SettingType::Width,
+                                SettingButton::OneDown,
+                                BackgroundColor(Color::srgb(0.0, 0.4, 0.0)),
+                                children![(
                             Text::new("-1"),
                             TextFont {
                                 font: asset_server.load("fonts/unifont-17.0.03.otf"),
@@ -184,23 +207,23 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
                                 ..default()
                             },
                             )],
-                        ));
-                        button.spawn((
-                            Node {
-                                position_type: PositionType::Absolute,
-                                display: Display::Flex,
-                                justify_content: JustifyContent::Center,
-                                align_items: AlignItems::Center,
-                                right: Val::Px(24.0),
-                                width: Val::Px(24.0),
-                                height: Val::Percent(100.0),
-                                ..default()
-                            },
-                            Button,
-                            SettingType::Width,
-                            SettingButton::OneUp,
-                            BackgroundColor(Color::srgb(0.0, 0.4, 0.0)),
-                            children![(
+                            ));
+                            button.spawn((
+                                Node {
+                                    position_type: PositionType::Absolute,
+                                    display: Display::Flex,
+                                    justify_content: JustifyContent::Center,
+                                    align_items: AlignItems::Center,
+                                    right: Val::Px(24.0),
+                                    width: Val::Px(24.0),
+                                    height: Val::Percent(100.0),
+                                    ..default()
+                                },
+                                Button,
+                                SettingType::Width,
+                                SettingButton::OneUp,
+                                BackgroundColor(Color::srgb(0.0, 0.4, 0.0)),
+                                children![(
                             Text::new("+1"),
                             TextFont {
                                 font: asset_server.load("fonts/unifont-17.0.03.otf"),
@@ -208,23 +231,23 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
                                 ..default()
                             },
                             )],
-                        ));
-                        button.spawn((
-                            Node {
-                                position_type: PositionType::Absolute,
-                                display: Display::Flex,
-                                justify_content: JustifyContent::Center,
-                                align_items: AlignItems::Center,
-                                right: Val::ZERO,
-                                width: Val::Px(24.0),
-                                height: Val::Percent(100.0),
-                                ..default()
-                            },
-                            Button,
-                            SettingType::Width,
-                            SettingButton::TenUp,
-                            BackgroundColor(Color::srgb(0.0, 0.4, 0.0)),
-                            children![(
+                            ));
+                            button.spawn((
+                                Node {
+                                    position_type: PositionType::Absolute,
+                                    display: Display::Flex,
+                                    justify_content: JustifyContent::Center,
+                                    align_items: AlignItems::Center,
+                                    right: Val::ZERO,
+                                    width: Val::Px(24.0),
+                                    height: Val::Percent(100.0),
+                                    ..default()
+                                },
+                                Button,
+                                SettingType::Width,
+                                SettingButton::TenUp,
+                                BackgroundColor(Color::srgb(0.0, 0.4, 0.0)),
+                                children![(
                             Text::new("+10"),
                             TextFont {
                                 font: asset_server.load("fonts/unifont-17.0.03.otf"),
@@ -232,51 +255,96 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
                                 ..default()
                             },
                             )],
-                        ));
-                    });
+                            ));
+                        });
+
+                });
+
 
                 // size height
-                rapper
-                    .spawn((
+                wrapper.spawn((
+                    Node {
+                        position_type: PositionType::Relative,
+                        display: Display::Flex,
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        left: Val::Px(0.0),
+                        width: Val::Percent(100.0),
+                        height: Val::Px(32.0),
+                        ..default()
+                    },
+                    BackgroundColor(Color::srgb(1.0, 0.6, 0.6)),
+                )).with_children(|container|{
+
+                    // setting type
+                    container.spawn((
                         Node {
                             position_type: PositionType::Relative,
                             display: Display::Flex,
                             justify_content: JustifyContent::Center,
                             align_items: AlignItems::Center,
-                            left: Val::Px(72.0),
-                            width: Val::Px(128.0),
+                            left: Val::Px(0.0),
+                            width: Val::Px(72.0),
                             height: Val::Px(32.0),
                             ..default()
                         },
-                        BackgroundColor(Color::srgb(0.3, 0.3, 0.3)),
-                    ))
-                    .with_children(|button| {
-                        button.spawn((
-                            Text::new(map_height.to_string()),
+                        children![(
+                            Text::new("Cell HeightSize"),
                             TextFont {
                                 font: asset_server.load("fonts/unifont-17.0.03.otf"),
-                                font_size: 24.0,
+                                font_size: 16.0,
                                 ..default()
                             },
-                            SettingType::Height,
-                        ));
+                        )],
+                    ));
 
-                        button.spawn((
+                    // setting buttons
+                    container
+                        .spawn((
                             Node {
-                                position_type: PositionType::Absolute,
+                                position_type: PositionType::Relative,
                                 display: Display::Flex,
                                 justify_content: JustifyContent::Center,
                                 align_items: AlignItems::Center,
-                                left: Val::ZERO,
-                                width: Val::Px(24.0),
-                                height: Val::Percent(100.0),
+                                right: Val::Px(0.0),
+                                width: Val::Px(128.0),
+                                height: Val::Px(32.0),
                                 ..default()
                             },
-                            Button,
-                            SettingType::Height,
-                            SettingButton::TenDown,
-                            BackgroundColor(Color::srgb(0.0, 0.4, 0.0)),
-                            children![(
+                            BackgroundColor(Color::srgb(0.3, 0.3, 0.3)),
+                        ))
+                        .with_children(|button| {
+                            button.spawn((
+                                Text::new(map_height.to_string()),
+                                TextFont {
+                                    font: asset_server.load("fonts/unifont-17.0.03.otf"),
+                                    font_size: 24.0,
+                                    ..default()
+                                },
+                                SettingType::Height,
+                            ));
+
+                            button.spawn((
+                                Node {
+                                    position_type: PositionType::Absolute,
+                                    display: Display::Flex,
+                                    justify_content: JustifyContent::Center,
+                                    align_items: AlignItems::Center,
+                                    left: Val::ZERO,
+                                    width: Val::Px(24.0),
+                                    height: Val::Percent(100.0),
+                                    border: UiRect {
+                                        bottom: Val::Px(2.0),
+                                        ..default()
+                                    },
+                                    ..default()
+                                },
+                                Button,
+                                SettingType::Height,
+                                SettingButton::TenDown,
+                                BackgroundColor(Color::srgb(0.0, 0.4, 0.0)),
+                                BorderColor::all(Color::BLACK),
+                                children![(
                             Text::new("-10"),
                             TextFont {
                                 font: asset_server.load("fonts/unifont-17.0.03.otf"),
@@ -284,23 +352,23 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
                                 ..default()
                             },
                             )],
-                        ));
-                        button.spawn((
-                            Node {
-                                position_type: PositionType::Absolute,
-                                display: Display::Flex,
-                                justify_content: JustifyContent::Center,
-                                align_items: AlignItems::Center,
-                                left: Val::Px(24.0),
-                                width: Val::Px(24.0),
-                                height: Val::Percent(100.0),
-                                ..default()
-                            },
-                            Button,
-                            SettingType::Height,
-                            SettingButton::OneDown,
-                            BackgroundColor(Color::srgb(0.0, 0.4, 0.0)),
-                            children![(
+                            ));
+                            button.spawn((
+                                Node {
+                                    position_type: PositionType::Absolute,
+                                    display: Display::Flex,
+                                    justify_content: JustifyContent::Center,
+                                    align_items: AlignItems::Center,
+                                    left: Val::Px(24.0),
+                                    width: Val::Px(24.0),
+                                    height: Val::Percent(100.0),
+                                    ..default()
+                                },
+                                Button,
+                                SettingType::Height,
+                                SettingButton::OneDown,
+                                BackgroundColor(Color::srgb(0.0, 0.4, 0.0)),
+                                children![(
                             Text::new("-1"),
                             TextFont {
                                 font: asset_server.load("fonts/unifont-17.0.03.otf"),
@@ -308,23 +376,23 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
                                 ..default()
                             },
                             )],
-                        ));
-                        button.spawn((
-                            Node {
-                                position_type: PositionType::Absolute,
-                                display: Display::Flex,
-                                justify_content: JustifyContent::Center,
-                                align_items: AlignItems::Center,
-                                right: Val::Px(24.0),
-                                width: Val::Px(24.0),
-                                height: Val::Percent(100.0),
-                                ..default()
-                            },
-                            Button,
-                            SettingType::Height,
-                            SettingButton::OneUp,
-                            BackgroundColor(Color::srgb(0.0, 0.4, 0.0)),
-                            children![(
+                            ));
+                            button.spawn((
+                                Node {
+                                    position_type: PositionType::Absolute,
+                                    display: Display::Flex,
+                                    justify_content: JustifyContent::Center,
+                                    align_items: AlignItems::Center,
+                                    right: Val::Px(24.0),
+                                    width: Val::Px(24.0),
+                                    height: Val::Percent(100.0),
+                                    ..default()
+                                },
+                                Button,
+                                SettingType::Height,
+                                SettingButton::OneUp,
+                                BackgroundColor(Color::srgb(0.0, 0.4, 0.0)),
+                                children![(
                             Text::new("+1"),
                             TextFont {
                                 font: asset_server.load("fonts/unifont-17.0.03.otf"),
@@ -332,23 +400,23 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
                                 ..default()
                             },
                             )],
-                        ));
-                        button.spawn((
-                            Node {
-                                position_type: PositionType::Absolute,
-                                display: Display::Flex,
-                                justify_content: JustifyContent::Center,
-                                align_items: AlignItems::Center,
-                                right: Val::ZERO,
-                                width: Val::Px(24.0),
-                                height: Val::Percent(100.0),
-                                ..default()
-                            },
-                            Button,
-                            SettingType::Height,
-                            SettingButton::TenUp,
-                            BackgroundColor(Color::srgb(0.0, 0.4, 0.0)),
-                            children![(
+                            ));
+                            button.spawn((
+                                Node {
+                                    position_type: PositionType::Absolute,
+                                    display: Display::Flex,
+                                    justify_content: JustifyContent::Center,
+                                    align_items: AlignItems::Center,
+                                    right: Val::ZERO,
+                                    width: Val::Px(24.0),
+                                    height: Val::Percent(100.0),
+                                    ..default()
+                                },
+                                Button,
+                                SettingType::Height,
+                                SettingButton::TenUp,
+                                BackgroundColor(Color::srgb(0.0, 0.4, 0.0)),
+                                children![(
                             Text::new("+10"),
                             TextFont {
                                 font: asset_server.load("fonts/unifont-17.0.03.otf"),
@@ -356,51 +424,95 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
                                 ..default()
                             },
                             )],
-                        ));
-                    });
+                            ));
+                        });
+
+                });
 
                 // bomb percent
-                rapper
-                    .spawn((
+                wrapper.spawn((
+                    Node {
+                        position_type: PositionType::Relative,
+                        display: Display::Flex,
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        left: Val::Px(0.0),
+                        width: Val::Percent(100.0),
+                        height: Val::Px(32.0),
+                        ..default()
+                    },
+                    BackgroundColor(Color::srgb(1.0, 0.6, 0.6)),
+                )).with_children(|container|{
+
+                    // setting type
+                    container.spawn((
                         Node {
                             position_type: PositionType::Relative,
                             display: Display::Flex,
                             justify_content: JustifyContent::Center,
                             align_items: AlignItems::Center,
-                            left: Val::Px(72.0),
-                            width: Val::Px(128.0),
+                            left: Val::Px(0.0),
+                            width: Val::Px(72.0),
                             height: Val::Px(32.0),
                             ..default()
                         },
-                        BackgroundColor(Color::srgb(0.3, 0.3, 0.3)),
-                    ))
-                    .with_children(|button| {
-                        button.spawn((
-                            Text::new(bomb_per.to_string()),
+                        children![(
+                            Text::new("Bomb Percent"),
                             TextFont {
                                 font: asset_server.load("fonts/unifont-17.0.03.otf"),
-                                font_size: 24.0,
+                                font_size: 16.0,
                                 ..default()
                             },
-                            SettingType::BombPercent,
-                        ));
+                        )],
+                    ));
 
-                        button.spawn((
+                    // setting buttons
+                    container
+                        .spawn((
                             Node {
-                                position_type: PositionType::Absolute,
+                                position_type: PositionType::Relative,
                                 display: Display::Flex,
                                 justify_content: JustifyContent::Center,
                                 align_items: AlignItems::Center,
-                                left: Val::ZERO,
-                                width: Val::Px(24.0),
-                                height: Val::Percent(100.0),
+                                right: Val::Px(0.0),
+                                width: Val::Px(128.0),
+                                height: Val::Px(32.0),
                                 ..default()
                             },
-                            Button,
-                            SettingType::BombPercent,
-                            SettingButton::TenDown,
-                            BackgroundColor(Color::srgb(0.0, 0.4, 0.0)),
-                            children![(
+                            BackgroundColor(Color::srgb(0.3, 0.3, 0.3)),
+                        ))
+                        .with_children(|button| {
+                            button.spawn((
+                                Text::new(bomb_per.to_string()),
+                                TextFont {
+                                    font: asset_server.load("fonts/unifont-17.0.03.otf"),
+                                    font_size: 24.0,
+                                    ..default()
+                                },
+                                SettingType::BombPercent,
+                            ));
+
+                            button.spawn((
+                                Node {
+                                    position_type: PositionType::Absolute,
+                                    display: Display::Flex,
+                                    justify_content: JustifyContent::Center,
+                                    align_items: AlignItems::Center,
+                                    left: Val::ZERO,
+                                    width: Val::Px(24.0),
+                                    height: Val::Percent(100.0),
+                                    border: UiRect {
+                                        bottom: Val::Px(2.0),
+                                        ..default()
+                                    },
+                                    ..default()
+                                },
+                                Button,
+                                SettingType::BombPercent,
+                                SettingButton::TenDown,
+                                BackgroundColor(Color::srgb(0.0, 0.4, 0.0)),
+                                BorderColor::all(Color::BLACK),
+                                children![(
                             Text::new("-10"),
                             TextFont {
                                 font: asset_server.load("fonts/unifont-17.0.03.otf"),
@@ -408,23 +520,23 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
                                 ..default()
                             },
                             )],
-                        ));
-                        button.spawn((
-                            Node {
-                                position_type: PositionType::Absolute,
-                                display: Display::Flex,
-                                justify_content: JustifyContent::Center,
-                                align_items: AlignItems::Center,
-                                left: Val::Px(24.0),
-                                width: Val::Px(24.0),
-                                height: Val::Percent(100.0),
-                                ..default()
-                            },
-                            Button,
-                            SettingType::BombPercent,
-                            SettingButton::OneDown,
-                            BackgroundColor(Color::srgb(0.0, 0.4, 0.0)),
-                            children![(
+                            ));
+                            button.spawn((
+                                Node {
+                                    position_type: PositionType::Absolute,
+                                    display: Display::Flex,
+                                    justify_content: JustifyContent::Center,
+                                    align_items: AlignItems::Center,
+                                    left: Val::Px(24.0),
+                                    width: Val::Px(24.0),
+                                    height: Val::Percent(100.0),
+                                    ..default()
+                                },
+                                Button,
+                                SettingType::BombPercent,
+                                SettingButton::OneDown,
+                                BackgroundColor(Color::srgb(0.0, 0.4, 0.0)),
+                                children![(
                             Text::new("-1"),
                             TextFont {
                                 font: asset_server.load("fonts/unifont-17.0.03.otf"),
@@ -432,23 +544,23 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
                                 ..default()
                             },
                             )],
-                        ));
-                        button.spawn((
-                            Node {
-                                position_type: PositionType::Absolute,
-                                display: Display::Flex,
-                                justify_content: JustifyContent::Center,
-                                align_items: AlignItems::Center,
-                                right: Val::Px(24.0),
-                                width: Val::Px(24.0),
-                                height: Val::Percent(100.0),
-                                ..default()
-                            },
-                            Button,
-                            SettingType::BombPercent,
-                            SettingButton::OneUp,
-                            BackgroundColor(Color::srgb(0.0, 0.4, 0.0)),
-                            children![(
+                            ));
+                            button.spawn((
+                                Node {
+                                    position_type: PositionType::Absolute,
+                                    display: Display::Flex,
+                                    justify_content: JustifyContent::Center,
+                                    align_items: AlignItems::Center,
+                                    right: Val::Px(24.0),
+                                    width: Val::Px(24.0),
+                                    height: Val::Percent(100.0),
+                                    ..default()
+                                },
+                                Button,
+                                SettingType::BombPercent,
+                                SettingButton::OneUp,
+                                BackgroundColor(Color::srgb(0.0, 0.4, 0.0)),
+                                children![(
                             Text::new("+1"),
                             TextFont {
                                 font: asset_server.load("fonts/unifont-17.0.03.otf"),
@@ -456,23 +568,23 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
                                 ..default()
                             },
                             )],
-                        ));
-                        button.spawn((
-                            Node {
-                                position_type: PositionType::Absolute,
-                                display: Display::Flex,
-                                justify_content: JustifyContent::Center,
-                                align_items: AlignItems::Center,
-                                right: Val::ZERO,
-                                width: Val::Px(24.0),
-                                height: Val::Percent(100.0),
-                                ..default()
-                            },
-                            Button,
-                            SettingType::BombPercent,
-                            SettingButton::TenUp,
-                            BackgroundColor(Color::srgb(0.0, 0.4, 0.0)),
-                            children![(
+                            ));
+                            button.spawn((
+                                Node {
+                                    position_type: PositionType::Absolute,
+                                    display: Display::Flex,
+                                    justify_content: JustifyContent::Center,
+                                    align_items: AlignItems::Center,
+                                    right: Val::ZERO,
+                                    width: Val::Px(24.0),
+                                    height: Val::Percent(100.0),
+                                    ..default()
+                                },
+                                Button,
+                                SettingType::BombPercent,
+                                SettingButton::TenUp,
+                                BackgroundColor(Color::srgb(0.0, 0.4, 0.0)),
+                                children![(
                             Text::new("+10"),
                             TextFont {
                                 font: asset_server.load("fonts/unifont-17.0.03.otf"),
@@ -480,8 +592,10 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
                                 ..default()
                             },
                             )],
-                        ));
-                    });
+                            ));
+                        });
+
+                });
             });
         });
 }
