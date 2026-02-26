@@ -72,6 +72,8 @@ struct Cell {
 #[derive(Component)]
 struct OpenState {
     opened: bool,
+    question: bool,
+    flag: bool,
 }
 
 #[derive(Resource)]

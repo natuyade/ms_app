@@ -39,7 +39,7 @@ pub fn setup_ms(
                     cell_x: x,
                     cell_y: y,
                 },
-                OpenState { opened: false },
+                OpenState { opened: false, question: false, flag: false },
                 GameLayer,
             ));
         }
