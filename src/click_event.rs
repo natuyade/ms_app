@@ -120,10 +120,11 @@ pub fn click_event(
                             (false, true, false) => {
                                 state.question = false;
                                 state.flag = true;
-                                *text = Text2d("🚩".to_string());
+                                *text = Text2d("🏴".to_string());
                             }// to flag
                             (false, false, true) => {
                                 state.flag = false;
+                                *text = Text2d("⬛".to_string());
                             }// to nothing
                             (_, _, _) => {}
                         }
