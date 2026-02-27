@@ -5,7 +5,7 @@ pub fn click_event(
     cellsize: Res<CellSize>,
     mapinfo: Res<MapInfo>,
     mouse: Res<ButtonInput<MouseButton>>,
-    mut cells: Query<(&Cell, &mut OpenState, &mut Text2d)>,
+    mut cells: Query<(&Cell, &mut OpenState, &mut Text2d, &mut TextColor)>,
     windows: Query<&Window>,
     mut next_state: ResMut<NextState<AppState>>,
 ) {
@@ -40,7 +40,7 @@ pub fn click_event(
                         let queue_pop = queue.pop().unwrap();
                         let pop_x = queue_pop[0];
                         let pop_y = queue_pop[1];
-                        for (cell, mut state, mut text) in cells.iter_mut() {
+                        for (cell, mut state, mut text, mut color) in cells.iter_mut() {
                             if cell.cell_x == pop_x && cell.cell_y == pop_y {
                                 if hint_num[pop_y as usize][pop_x as usize] != 0 {
                                     if state.opened == false && state.flag == false && state.question == false {
@@ -48,17 +48,17 @@ pub fn click_event(
                                             next_state.set(AppState::GameOver);
                                         }
                                         state.opened = true;
-                                        *text = Text2d::new(num_convert(
-                                            hint_num[pop_y as usize][pop_x as usize],
-                                        ));
+                                        let ( converted_text, text_color ) = num_convert(hint_num[pop_y as usize][pop_x as usize]);
+                                        **text = converted_text;
+                                        **color = text_color;
                                     }
                                     continue;
                                 }
                                 if state.opened == false && state.flag == false && state.question == false {
                                     state.opened = true;
-                                    *text = Text2d::new(num_convert(
-                                        hint_num[pop_y as usize][pop_x as usize],
-                                    ));
+                                    let ( converted_text, text_color ) = num_convert(hint_num[pop_y as usize][pop_x as usize]);
+                                    **text = converted_text;
+                                    **color = text_color;
                                     for dy in -1i32..=1 {
                                         for dx in -1i32..=1 {
                                             let nx = pop_x + dx;
@@ -111,21 +111,24 @@ pub fn click_event(
                     println!("マウス座標: {:?}__{:?}", world_x, world_y);
                     println!("ワールド座標: {:?}__{:?}", map_x, map_y);
 
-                    for (cell, mut state, mut text) in cells.iter_mut() {
+                    for (cell, mut state, mut text, mut color) in cells.iter_mut() {
                         if cell.cell_x == map_x && cell.cell_y == map_y {
                             match (state.opened, state.question, state.flag) {
                                 (false, false, false) => {
                                     state.question = true;
-                                    *text = Text2d("❔".to_string());
+                                    **text = "❔".to_string();
+                                    **color = Color::srgb(0.5, 0.5, 0.5);
                                 }// to question
                                 (false, true, false) => {
                                     state.question = false;
                                     state.flag = true;
-                                    *text = Text2d("❕".to_string());
+                                    **text = "❕".to_string();
+                                    **color = Color::srgb(1.0, 0.0, 0.0);
                                 }// to flag
                                 (false, false, true) => {
                                     state.flag = false;
-                                    *text = Text2d("⬛".to_string());
+                                    **text = "⬛".to_string();
+                                    **color = Color::srgb(1.0, 1.0, 1.0);
                                 }// to nothing
                                 (_, _, _) => {}
                             }
@@ -138,19 +141,19 @@ pub fn click_event(
     }
 }
 
-fn num_convert(number: usize) -> String {
+fn num_convert(number: usize) -> (String, Color) {
     match number {
-        0 => "0⃣".to_string(),
-        1 => "1⃣".to_string(),
-        2 => "2⃣".to_string(),
-        3 => "3⃣".to_string(),
-        4 => "4⃣".to_string(),
-        5 => "5⃣".to_string(),
-        6 => "6⃣".to_string(),
-        7 => "7⃣".to_string(),
-        8 => "8⃣".to_string(),
-        9 => "9⃣".to_string(),
-        _ => "".to_string(),
+        0 => ("0⃣".to_string(), Color::srgb(2.0, 2.0, 2.0)),
+        1 => ("1⃣".to_string(), Color::srgb(0.7, 0.7, 1.0)),
+        2 => ("2⃣".to_string(), Color::srgb(0.7, 1.0, 0.7)),
+        3 => ("3⃣".to_string(), Color::srgb(1.0, 0.7, 0.7)),
+        4 => ("4⃣".to_string(), Color::srgb(0.4, 0.4, 1.0)),
+        5 => ("5⃣".to_string(), Color::srgb(0.4, 1.0, 0.4)),
+        6 => ("6⃣".to_string(), Color::srgb(1.0, 0.4, 0.4)),
+        7 => ("7⃣".to_string(), Color::srgb(0.0, 0.0, 1.0)),
+        8 => ("8⃣".to_string(), Color::srgb(0.0, 1.0, 0.0)),
+        9 => ("9⃣".to_string(), Color::srgb(1.0, 0.0, 0.0)),
+        _ => ("".to_string(), Color::srgb(0.0, 0.0, 0.0)),
     }
 }
 

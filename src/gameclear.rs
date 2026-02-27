@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{AppState, ClearLayer};
+use crate::ClearLayer;
 
 pub fn setup_gameclear( mut commands: Commands, asset_server: Res<AssetServer> ) {
     commands.spawn((

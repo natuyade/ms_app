@@ -39,7 +39,7 @@ fn main() {
         .add_systems(OnEnter(AppState::Title), setup_title)
         .add_systems(OnExit(AppState::Title), clean_title)
         .add_systems(OnEnter(AppState::Playing), setup_ms)
-        .add_systems(OnExit(AppState::Playing), clean_ms)
+        //.add_systems(OnExit(AppState::Playing), clean_ms)
         .add_systems(OnEnter(AppState::GameOver), setup_gameover)
         .add_systems(OnExit(AppState::GameOver), clean_gameover)
         .add_systems(OnEnter(AppState::GameClear), setup_gameclear)
