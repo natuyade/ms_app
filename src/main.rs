@@ -7,9 +7,11 @@ mod start_button;
 mod title;
 mod gameover;
 mod gameclear;
+mod title_bg;
 
 use crate::click_event::{check_remaining, click_event};
-use crate::gameclear::setup_gameclear;
+use crate::gameclear::{setup_gameclear, clean_gameclear};
+use crate::title_bg::title_rotate;
 use crate::setup_msmap::{clean_ms, setup_ms};
 use crate::title::{clean_title, map_setting, setup_title, start_button};
 use crate::gameover::{clean_gameover, setup_gameover, back_button};
@@ -28,6 +30,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .init_state::<AppState>()
         .add_systems(Startup, setup_camera)
+        .insert_resource(ClearColor(Color::srgb(0.5, 0.5, 1.0)))
         .insert_resource(MapInfo {
             map_width: 10,
             map_height: 10,
@@ -39,13 +42,14 @@ fn main() {
         .add_systems(OnEnter(AppState::Title), setup_title)
         .add_systems(OnExit(AppState::Title), clean_title)
         .add_systems(OnEnter(AppState::Playing), setup_ms)
-        //.add_systems(OnExit(AppState::Playing), clean_ms)
         .add_systems(OnEnter(AppState::GameOver), setup_gameover)
-        .add_systems(OnExit(AppState::GameOver), clean_gameover)
+        .add_systems(OnExit(AppState::GameOver), (clean_ms, clean_gameover))
         .add_systems(OnEnter(AppState::GameClear), setup_gameclear)
+        .add_systems(OnExit(AppState::GameClear), (clean_ms, clean_gameclear))
         .add_systems(
             Update,
             (
+                title_rotate,
                 start_button.run_if(in_state(AppState::Title)),
                 map_setting.run_if(in_state(AppState::Title)),
                 click_event.run_if(in_state(AppState::Playing)),
@@ -56,9 +60,39 @@ fn main() {
         .run();
 }
 
-fn setup_camera( mut commands: Commands ) {
-    commands.spawn(Camera2d);
+fn setup_camera( mut commands: Commands, asset_server: Res<AssetServer> ) {
+
+    commands.spawn((
+        Camera3d::default(),
+        Projection::Perspective(PerspectiveProjection {
+            fov: std::f32::consts::PI/1.8,
+            near: 0.1,
+            far: 64.0,
+            ..default()
+        }),
+        Camera { order: 0, ..default() },
+    ));
+
+    commands.spawn((
+        SceneRoot(
+            asset_server.load("models/title_screen/title.gltf#Scene0")
+        ),
+        Transform::from_xyz(
+            0.0,
+            -2.0,
+            0.0,
+        ),
+        TitleModel,
+    ));
+
+    commands.spawn((
+        Camera2d::default(),
+        Camera { order: 1, ..default() },
+    ));
 }
+
+#[derive(Component)]
+struct TitleModel;
 
 #[derive(Component)]
 struct TitleLayer;

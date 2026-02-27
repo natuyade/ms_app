@@ -89,7 +89,7 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
                     height: Val::Percent(100.0),
                     ..default()
                 },
-                BackgroundColor(Color::srgb(0.3, 0.3, 0.5)),
+                BackgroundColor(Color::srgba(0.75, 0.75, 1.0, 0.5)),
                 )).with_children(|wrapper|{
 
                 // size width
@@ -104,7 +104,7 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
                         height: Val::Px(32.0),
                         ..default()
                     },
-                    BackgroundColor(Color::srgb(1.0, 0.6, 0.6)),
+                    BackgroundColor(Color::srgb(0.3, 0.3, 0.5)),
                 )).with_children(|container|{
 
                     // setting type
@@ -271,7 +271,7 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
                         height: Val::Px(32.0),
                         ..default()
                     },
-                    BackgroundColor(Color::srgb(1.0, 0.6, 0.6)),
+                    BackgroundColor(Color::srgb(0.3, 0.3, 0.5)),
                 )).with_children(|container|{
 
                     // setting type
@@ -437,7 +437,7 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
                         height: Val::Px(32.0),
                         ..default()
                     },
-                    BackgroundColor(Color::srgb(1.0, 0.6, 0.6)),
+                    BackgroundColor(Color::srgb(0.3, 0.3, 0.5)),
                 )).with_children(|container|{
 
                     // setting type

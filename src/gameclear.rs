@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 
-use crate::ClearLayer;
+use crate::{AppState, ClearLayer};
 
-pub fn setup_gameclear( mut commands: Commands, asset_server: Res<AssetServer> ) {
+pub fn setup_gameclear( mut commands: Commands, asset_server: Res<AssetServer>, mut next_state: ResMut<NextState<AppState>> ) {
     commands.spawn((
         Node {
             position_type: PositionType::Relative,
@@ -22,4 +22,10 @@ pub fn setup_gameclear( mut commands: Commands, asset_server: Res<AssetServer> )
             },
         )]
         ));
+}
+
+pub fn clean_gameclear( mut commands: Commands, query: Query<Entity, With<ClearLayer>> ) {
+    for entity in &query {
+        commands.entity(entity).despawn()
+    }
 }
