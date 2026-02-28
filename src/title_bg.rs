@@ -6,6 +6,6 @@ pub fn title_rotate(
     mut query: Query<&mut Transform, With<TitleModel>>
 ) {
     for mut transform in query {
-        transform.rotate_y(time.delta_secs() * 0.1);
+        //transform.rotate_y(time.delta_secs() * 0.1);
     }
 }

@@ -89,7 +89,6 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
                     height: Val::Percent(100.0),
                     ..default()
                 },
-                BackgroundColor(Color::srgba(0.75, 0.75, 1.0, 0.5)),
                 )).with_children(|wrapper|{
 
                 // size width

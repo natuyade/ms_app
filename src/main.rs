@@ -2,19 +2,19 @@ use bevy::prelude::*;
 
 mod click_event;
 mod convert_num;
+mod gameclear;
+mod gameover;
 mod setup_msmap;
 mod start_button;
 mod title;
-mod gameover;
-mod gameclear;
 mod title_bg;
 
 use crate::click_event::{check_remaining, click_event};
-use crate::gameclear::{setup_gameclear, clean_gameclear};
-use crate::title_bg::title_rotate;
+use crate::gameclear::{clean_gameclear, setup_gameclear};
+use crate::gameover::{back_button, clean_gameover, setup_gameover};
 use crate::setup_msmap::{clean_ms, setup_ms};
 use crate::title::{clean_title, map_setting, setup_title, start_button};
-use crate::gameover::{clean_gameover, setup_gameover, back_button};
+use crate::title_bg::title_rotate;
 
 #[derive(States, Debug, Clone, PartialEq, Eq, Hash, Default)]
 enum AppState {
@@ -53,41 +53,103 @@ fn main() {
                 start_button.run_if(in_state(AppState::Title)),
                 map_setting.run_if(in_state(AppState::Title)),
                 click_event.run_if(in_state(AppState::Playing)),
-                check_remaining.run_if(in_state(AppState::Playing)),
+                check_remaining.after(click_event),
                 back_button.run_if(in_state(AppState::GameOver)),
             ),
         )
         .run();
 }
 
-fn setup_camera( mut commands: Commands, asset_server: Res<AssetServer> ) {
-
+fn setup_camera(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn((
         Camera3d::default(),
         Projection::Perspective(PerspectiveProjection {
-            fov: std::f32::consts::PI/1.8,
+            fov: std::f32::consts::PI / 1.8,
             near: 0.1,
             far: 64.0,
             ..default()
         }),
-        Camera { order: 0, ..default() },
+        Camera {
+            order: 0,
+            ..default()
+        },
+        Transform::from_xyz(-1.0, 9.74, -16.953),
+        //Transform::from_xyz(0., 0., 0.),
     ));
 
     commands.spawn((
-        SceneRoot(
-            asset_server.load("models/title_screen/title.gltf#Scene0")
-        ),
-        Transform::from_xyz(
-            0.0,
-            -2.0,
-            0.0,
-        ),
+        SceneRoot(asset_server.load("models/title_screen/title.gltf#Scene0")),
+        Transform::from_xyz(0.0, -2.0, 0.0),
         TitleModel,
-    ));
+    )).with_children(|model|{
+        model.spawn((
+            PointLight {
+                intensity: 1600.0,
+                range: 100.0,
+                color: Color::srgb(1.0, 0.5, 0.2),
+                shadows_enabled: false,
+                radius: 0.2,
+                ..default()
+            },
+            Transform::from_xyz(0.5, 12.2, -17.9),
+            TitleModel,
+            ));
+        model.spawn((
+            PointLight {
+                intensity: 10000.0,
+                range: 100.0,
+                color: Color::srgb(1.0, 0.0, 0.0),
+                shadows_enabled: false,
+                radius: 100.0,
+                ..default()
+            },
+            Transform::from_xyz(-1.5, 12.9, -19.5),
+            TitleModel,
+        ));
+        model.spawn((
+            PointLight {
+                intensity: 10000.0,
+                range: 100.0,
+                color: Color::srgb(1.0, 0.0, 0.0),
+                shadows_enabled: false,
+                radius: 100.0,
+                ..default()
+            },
+            Transform::from_xyz(-1.5, 12.9, -22.5),
+            TitleModel,
+        ));
+        model.spawn((
+            PointLight {
+                intensity: 10000.0,
+                range: 100.0,
+                color: Color::srgb(1.0, 0.0, 0.0),
+                shadows_enabled: false,
+                radius: 100.0,
+                ..default()
+            },
+            Transform::from_xyz(-7.5, 12.9, -19.5),
+            TitleModel,
+        ));
+        model.spawn((
+            PointLight {
+                intensity: 10000.0,
+                range: 100.0,
+                color: Color::srgb(1.0, 0.0, 0.0),
+                shadows_enabled: false,
+                radius: 100.0,
+                ..default()
+            },
+            Transform::from_xyz(-7.5, 12.9, -22.5),
+            TitleModel,
+        ));
+    });
 
     commands.spawn((
         Camera2d::default(),
-        Camera { order: 1, ..default() },
+        Camera {
+            order: 1,
+            ..default()
+        },
     ));
 }
 
