@@ -143,7 +143,7 @@ pub fn click_event(
 
 fn num_convert(number: usize) -> (String, Color) {
     match number {
-        0 => ("0⃣".to_string(), Color::srgb(2.0, 2.0, 2.0)),
+        0 => ("⬜".to_string(), Color::srgb(2.0, 2.0, 2.0)),
         1 => ("1⃣".to_string(), Color::srgb(0.7, 0.7, 1.0)),
         2 => ("2⃣".to_string(), Color::srgb(0.7, 1.0, 0.7)),
         3 => ("3⃣".to_string(), Color::srgb(1.0, 0.7, 0.7)),
@@ -152,7 +152,7 @@ fn num_convert(number: usize) -> (String, Color) {
         6 => ("6⃣".to_string(), Color::srgb(1.0, 0.4, 0.4)),
         7 => ("7⃣".to_string(), Color::srgb(0.0, 0.0, 1.0)),
         8 => ("8⃣".to_string(), Color::srgb(0.0, 1.0, 0.0)),
-        9 => ("9⃣".to_string(), Color::srgb(1.0, 0.0, 0.0)),
+        9 => ("⚠️".to_string(), Color::srgb(1.0, 0.0, 0.0)),
         _ => ("".to_string(), Color::srgb(0.0, 0.0, 0.0)),
     }
 }

@@ -10,7 +10,7 @@ mod title;
 mod title_bg;
 
 use crate::click_event::{check_remaining, click_event};
-use crate::gameclear::{clean_gameclear, setup_gameclear};
+use crate::gameclear::{clean_gameclear, setup_gameclear, title_button};
 use crate::gameover::{back_button, clean_gameover, setup_gameover};
 use crate::setup_msmap::{clean_ms, setup_ms};
 use crate::title::{clean_title, map_setting, setup_title, start_button};
@@ -53,8 +53,9 @@ fn main() {
                 start_button.run_if(in_state(AppState::Title)),
                 map_setting.run_if(in_state(AppState::Title)),
                 click_event.run_if(in_state(AppState::Playing)),
-                check_remaining.after(click_event),
+                check_remaining.after(click_event).run_if(in_state(AppState::Playing)),
                 back_button.run_if(in_state(AppState::GameOver)),
+                title_button.run_if(in_state(AppState::GameClear)),
             ),
         )
         .run();
@@ -155,6 +156,9 @@ fn setup_camera(mut commands: Commands, asset_server: Res<AssetServer>) {
 
 #[derive(Component)]
 struct TitleModel;
+
+#[derive(Component)]
+struct TopText;
 
 #[derive(Component)]
 struct TitleLayer;

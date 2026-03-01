@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::{AppState, FailedLayer};
+use crate::{AppState, Cell, FailedLayer};
 
 pub fn setup_gameover( mut commands: Commands, asset_server: Res<AssetServer> ) {
     commands.spawn((
@@ -12,6 +12,7 @@ pub fn setup_gameover( mut commands: Commands, asset_server: Res<AssetServer> ) 
             ..default()
         },
         FailedLayer,
+        BackgroundColor(Color::srgba(0.3,0.0,0.0,0.5)),
         )).with_children(|parent| {
 
         // gameover text
@@ -21,7 +22,7 @@ pub fn setup_gameover( mut commands: Commands, asset_server: Res<AssetServer> ) 
                 display: Display::Flex,
                 justify_content: JustifyContent::Center,
                 align_items: AlignItems::Center,
-                top: Val::Percent(28.0),
+                top: Val::Percent(4.0),
                 ..default()
             },
             Text::new("GAME OVER"),
@@ -39,7 +40,7 @@ pub fn setup_gameover( mut commands: Commands, asset_server: Res<AssetServer> ) 
                 display: Display::Flex,
                 align_items: AlignItems::Center,
                 justify_content: JustifyContent::Center,
-                top: Val::Percent(50.0),
+                bottom: Val::Percent(4.0),
                 width: Val::Px(480.0),
                 height: Val::Px(64.0),
                 ..default()
@@ -61,12 +62,25 @@ pub fn setup_gameover( mut commands: Commands, asset_server: Res<AssetServer> ) 
 }
 
 pub fn back_button(
-    ints_query: Query<&Interaction, With<Button>>,
+    mut ints_query: Query<(&Interaction, &mut BackgroundColor),(With<Button>, Changed<Interaction>)>,
     mut next_state: ResMut<NextState<AppState>>,
+    mut color_query: Query<&mut TextColor, With<Cell>>
 ) {
-    for ints in &ints_query {
-        if *ints == Interaction::Pressed {
-            next_state.set(AppState::Title);
+    for (ints, mut bgcolor) in &mut ints_query {
+        for mut textcolor in &mut color_query {
+            if *ints == Interaction::Pressed {
+                next_state.set(AppState::Title);
+            }
+
+            if *ints == Interaction::None {
+                *bgcolor = BackgroundColor(Color::srgb(0.2, 0.2, 0.2));
+                **textcolor = Color::srgb(1.0, 0.3, 0.3);
+            }
+
+            if *ints == Interaction::Hovered {
+                *bgcolor = BackgroundColor(Color::srgb(0.5, 0.5, 0.5));
+            }
+
         }
     }
 }
