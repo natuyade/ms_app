@@ -74,8 +74,8 @@ fn setup_camera(mut commands: Commands, asset_server: Res<AssetServer>) {
             order: 0,
             ..default()
         },
-        Transform::from_xyz(-1.0, 9.74, -16.953),
-        //Transform::from_xyz(0., 0., 0.),
+        //Transform::from_xyz(-1.0, 9.74, -16.953),
+        Transform::from_xyz(0.0, 0.0, 0.0),
     ));
 
     commands.spawn((
@@ -156,9 +156,6 @@ fn setup_camera(mut commands: Commands, asset_server: Res<AssetServer>) {
 
 #[derive(Component)]
 struct TitleModel;
-
-#[derive(Component)]
-struct TopText;
 
 #[derive(Component)]
 struct TitleLayer;

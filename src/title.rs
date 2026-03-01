@@ -27,7 +27,7 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
                     display: Display::Flex,
                     justify_content: JustifyContent::Center,
                     align_items: AlignItems::Center,
-                    top: Val::Percent(28.0),
+                    top: Val::Percent(24.0),
                     ..default()
                 },
                 Text::new("MineSweepish"),

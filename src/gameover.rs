@@ -66,19 +66,19 @@ pub fn back_button(
     mut next_state: ResMut<NextState<AppState>>,
     mut color_query: Query<&mut TextColor, With<Cell>>
 ) {
-    for (ints, mut bgcolor) in &mut ints_query {
-        for mut textcolor in &mut color_query {
+    for (ints, mut bg_color) in &mut ints_query {
+        for mut text_color in &mut color_query {
             if *ints == Interaction::Pressed {
                 next_state.set(AppState::Title);
             }
 
             if *ints == Interaction::None {
-                *bgcolor = BackgroundColor(Color::srgb(0.2, 0.2, 0.2));
-                **textcolor = Color::srgb(1.0, 0.3, 0.3);
+                *bg_color = BackgroundColor(Color::srgb(0.2, 0.2, 0.2));
+                **text_color = Color::srgb(1.0, 0.3, 0.3);
             }
 
             if *ints == Interaction::Hovered {
-                *bgcolor = BackgroundColor(Color::srgb(0.5, 0.5, 0.5));
+                *bg_color = BackgroundColor(Color::srgb(0.5, 0.5, 0.5));
             }
 
         }
