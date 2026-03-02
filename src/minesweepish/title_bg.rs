@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::TitleModel;
+use crate::minesweepish::ms_main::TitleModel;
 
 pub fn title_rotate(
     time : Res<Time>,

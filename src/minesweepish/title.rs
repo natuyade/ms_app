@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{MapInfo, SettingButton, SettingType, TitleLayer};
+use crate::minesweepish::ms_main::{MapInfo, SettingButton, SettingType, TitleLayer};
 
 pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapinfo: Res<MapInfo>) {
 
@@ -594,7 +594,7 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
         });
 }
 
-use crate::AppState;
+use crate::minesweepish::ms_main::AppState;
 
 pub fn start_button(
     mut ints_query: Query<(&Interaction, &Children, &mut BackgroundColor), (With<Button>, Without<SettingButton>)>,
@@ -633,8 +633,7 @@ pub fn map_setting(
 ) {
     for (ints, types, buttons, mut bordercolor, mut bgcolor, mut node) in &mut buttons_query {
         if *ints == Interaction::Pressed {
-            use crate::SettingButton::*;
-            use crate::SettingType::*;
+            use crate::minesweepish::ms_main::{SettingButton::*, SettingType::*};
 
             match (types, buttons) {
                 (Width, TenDown) => settings.map_width = (settings.map_width - 10).max(1).min(20),

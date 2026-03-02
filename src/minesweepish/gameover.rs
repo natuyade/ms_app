@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 
-use crate::{AppState, Cell, ClearLayer, MapInfo};
+use crate::minesweepish::ms_main::{AppState, Cell, FailedLayer};
 
-pub fn setup_gameclear( mut commands: Commands, asset_server: Res<AssetServer>, mut next_state: ResMut<NextState<AppState>> ) {
+pub fn setup_gameover( mut commands: Commands, asset_server: Res<AssetServer> ) {
     commands.spawn((
         Node {
             position_type: PositionType::Relative,
@@ -12,23 +12,29 @@ pub fn setup_gameclear( mut commands: Commands, asset_server: Res<AssetServer>, 
             height: Val::Percent(100.0),
             ..default()
         },
-        BackgroundColor(Color::srgba(0.0, 0.0, 0.2, 0.5)),
-        ClearLayer,
-        children![(
+        FailedLayer,
+        BackgroundColor(Color::srgba(0.3,0.0,0.0,0.5)),
+        )).with_children(|parent| {
+
+        // gameover text
+        parent.spawn((
             Node {
                 position_type: PositionType::Absolute,
+                display: Display::Flex,
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
                 top: Val::Percent(4.0),
                 ..default()
             },
-            Text::new("GameClear!"),
+            Text::new("GAME OVER"),
             TextFont {
                 font: asset_server.load("fonts/unifont-17.0.03.otf"),
                 font_size: 64.0,
                 ..default()
             },
-        )],
-        )).with_children(|parent| {
+            ));
 
+        // back button
         parent.spawn((
             Node {
                 position_type: PositionType::Absolute,
@@ -36,7 +42,7 @@ pub fn setup_gameclear( mut commands: Commands, asset_server: Res<AssetServer>, 
                 align_items: AlignItems::Center,
                 justify_content: JustifyContent::Center,
                 bottom: Val::Percent(4.0),
-                width: Val::Px(320.0),
+                width: Val::Px(480.0),
                 height: Val::Px(64.0),
                 ..default()
             },
@@ -44,26 +50,19 @@ pub fn setup_gameclear( mut commands: Commands, asset_server: Res<AssetServer>, 
             BackgroundColor(Color::srgb(0.5, 0.5, 0.5)),
         )).with_children(|button| {
             button.spawn((
-                Text::new("もういっかい"),
+                Text::new("タイトルに戻る"),
                 TextFont {
                     font: asset_server.load("fonts/unifont-17.0.03.otf"),
                     font_size: 48.0,
                     ..default()
                 },
-                TextColor(Color::srgb(0.0, 0.8, 0.0)),
+                TextColor(Color::srgb(1.0, 0.3, 0.3)),
             ));
         });
     });
 }
 
-pub fn clean_gameclear( mut commands: Commands, query: Query<Entity, With<ClearLayer>> ) {
-    for entity in &query {
-        commands.entity(entity).despawn()
-    }
-}
-
-pub fn title_button(
-    mapinfo: Res<MapInfo>,
+pub fn back_button(
     mut ints_query: Query<(&Interaction, &mut BackgroundColor),(With<Button>, Changed<Interaction>)>,
     mut next_state: ResMut<NextState<AppState>>,
     mut color_query: Query<&mut TextColor, With<Cell>>
@@ -76,19 +75,19 @@ pub fn title_button(
 
             if *ints == Interaction::None {
                 *bg_color = BackgroundColor(Color::srgb(0.2, 0.2, 0.2));
-                **text_color = Color::srgb(0.0, 0.8, 0.0);
+                **text_color = Color::srgb(1.0, 0.3, 0.3);
             }
 
-            if mapinfo.map_width == 6 && mapinfo.map_height == 6 && mapinfo.bomb_percent == 6 {
-                if *ints == Interaction::Hovered {
-                    *bg_color = BackgroundColor(Color::srgb(1.0, 0.0, 1.0));
-                    **text_color = Color::srgb(0.0, 0.0, 0.0);
-                }
-            } else {
-                if *ints == Interaction::Hovered {
-                    *bg_color = BackgroundColor(Color::srgb(0.5, 0.5, 0.5));
-                }
+            if *ints == Interaction::Hovered {
+                *bg_color = BackgroundColor(Color::srgb(0.5, 0.5, 0.5));
             }
+
         }
+    }
+}
+
+pub fn clean_gameover( mut commands: Commands, query: Query<Entity, With<FailedLayer>>) {
+    for entity in query {
+        commands.entity(entity).despawn()
     }
 }

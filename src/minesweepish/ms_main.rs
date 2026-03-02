@@ -1,0 +1,316 @@
+use bevy::asset::AssetMetaCheck;
+use bevy::prelude::*;
+
+use crate::minesweepish::click_event::{check_remaining, click_event};
+use crate::minesweepish::gameclear::{clean_gameclear, setup_gameclear, title_button};
+use crate::minesweepish::gameover::{back_button, clean_gameover, setup_gameover};
+use crate::minesweepish::setup_msmap::{clean_ms, setup_ms};
+use crate::minesweepish::title::{clean_title, map_setting, setup_title, start_button};
+use crate::minesweepish::title_bg::title_rotate;
+
+#[derive(States, Debug, Clone, PartialEq, Eq, Hash, Default)]
+pub enum AppState {
+    #[default]
+    Title,
+    Playing,
+    GameOver,
+    GameClear,
+}
+
+pub fn ms_main() {
+    App::new()
+        .add_plugins(DefaultPlugins.set(
+            WindowPlugin {
+                primary_window: Some(
+                    Window {
+                        canvas: Some("#minesweepish".to_string()),
+                        fit_canvas_to_parent: true,
+                        ..default()
+                    }
+                ),
+                ..default()
+            }
+        ).set(
+            // 今回はmetaファイルを用意していないためNeverにしている
+            AssetPlugin {
+                file_path: "assets/".to_string(),
+                // wasmの場合先にmetaファイルを参照し本体ファイルを探すので必須
+                meta_check: AssetMetaCheck::Never,
+            ..default()
+        }
+        )
+        )
+        .init_state::<AppState>()
+        .add_systems(Startup, setup_camera)
+        .insert_resource(ClearColor(Color::srgb(0.5, 0.5, 1.0)))
+        .insert_resource(MapInfo {
+            map_width: 10,
+            map_height: 10,
+            bomb_percent: 10,
+            remaining_bombs: 0,
+            hint_number: vec![],
+        })
+        .insert_resource(CellSize { cell_scale: 0 })
+        .add_systems(OnEnter(AppState::Title), setup_title)
+        .add_systems(OnExit(AppState::Title), clean_title)
+        .add_systems(OnEnter(AppState::Playing), setup_ms)
+        .add_systems(OnEnter(AppState::GameOver), setup_gameover)
+        .add_systems(OnExit(AppState::GameOver), (clean_ms, clean_gameover))
+        .add_systems(OnEnter(AppState::GameClear), setup_gameclear)
+        .add_systems(OnExit(AppState::GameClear), (clean_ms, clean_gameclear))
+        .add_systems(
+            Update,
+            (
+                title_rotate,
+                start_button.run_if(in_state(AppState::Title)),
+                map_setting.run_if(in_state(AppState::Title)),
+                click_event.run_if(in_state(AppState::Playing)),
+                check_remaining.after(click_event).run_if(in_state(AppState::Playing)),
+                back_button.run_if(in_state(AppState::GameOver)),
+                title_button.run_if(in_state(AppState::GameClear)),
+            ),
+        )
+        .run();
+}
+
+fn setup_camera(mut commands: Commands, asset_server: Res<AssetServer>) {
+    commands.spawn((
+        Camera3d::default(),
+        Projection::Perspective(PerspectiveProjection {
+            fov: std::f32::consts::PI / 1.8,
+            near: 0.1,
+            far: 64.0,
+            ..default()
+        }),
+        Camera {
+            order: 0,
+            ..default()
+        },
+        //Transform::from_xyz(-1.0, 9.74, -16.953),
+        Transform::from_xyz(0.0, 0.0, 0.0),
+    ));
+
+    commands.spawn((
+        SceneRoot(asset_server.load("models/title_screen/title.gltf#Scene0")),
+        Transform::from_xyz(0.0, -2.0, 0.0),
+        TitleModel,
+    )).with_children(|model|{
+        model.spawn((
+            PointLight {
+                intensity: 1600.0,
+                range: 100.0,
+                color: Color::srgb(1.0, 0.5, 0.2),
+                shadows_enabled: false,
+                radius: 0.2,
+                ..default()
+            },
+            Transform::from_xyz(0.5, 12.2, -17.9),
+            TitleModel,
+            ));
+        model.spawn((
+            PointLight {
+                intensity: 10000.0,
+                range: 100.0,
+                color: Color::srgb(1.0, 0.0, 0.0),
+                shadows_enabled: false,
+                radius: 100.0,
+                ..default()
+            },
+            Transform::from_xyz(-1.5, 12.9, -19.5),
+            TitleModel,
+        ));
+        model.spawn((
+            PointLight {
+                intensity: 10000.0,
+                range: 100.0,
+                color: Color::srgb(1.0, 0.0, 0.0),
+                shadows_enabled: false,
+                radius: 100.0,
+                ..default()
+            },
+            Transform::from_xyz(-1.5, 12.9, -22.5),
+            TitleModel,
+        ));
+        model.spawn((
+            PointLight {
+                intensity: 10000.0,
+                range: 100.0,
+                color: Color::srgb(1.0, 0.0, 0.0),
+                shadows_enabled: false,
+                radius: 100.0,
+                ..default()
+            },
+            Transform::from_xyz(-7.5, 12.9, -19.5),
+            TitleModel,
+        ));
+        model.spawn((
+            PointLight {
+                intensity: 10000.0,
+                range: 100.0,
+                color: Color::srgb(1.0, 0.0, 0.0),
+                shadows_enabled: false,
+                radius: 100.0,
+                ..default()
+            },
+            Transform::from_xyz(-7.5, 12.9, -22.5),
+            TitleModel,
+        ));
+    });
+
+    commands.spawn((
+        Camera2d::default(),
+        Camera {
+            order: 1,
+            ..default()
+        },
+    ));
+}
+
+#[derive(Component)]
+pub struct TitleModel;
+
+#[derive(Component)]
+pub struct TitleLayer;
+
+#[derive(Component)]
+pub struct GameLayer;
+
+#[derive(Component)]
+pub struct FailedLayer;
+
+#[derive(Component)]
+pub struct ClearLayer;
+
+#[derive(Component)]
+pub struct Cell {
+    pub cell_x: i32,
+    pub cell_y: i32,
+}
+
+#[derive(Component)]
+pub struct OpenState {
+    pub opened: bool,
+    pub question: bool,
+    pub flag: bool,
+}
+
+#[derive(Resource)]
+pub struct CellSize {
+    pub cell_scale: i32,
+}
+
+#[derive(Resource)]
+pub struct MapInfo {
+    pub map_width: i32,
+    pub map_height: i32,
+    pub bomb_percent: i32,
+    pub remaining_bombs: i32,
+    pub hint_number: Vec<Vec<usize>>,
+}
+
+#[derive(Component)]
+pub enum SettingType {
+    Width,
+    Height,
+    BombPercent,
+}
+#[derive(Component)]
+pub enum SettingButton {
+    OneUp,
+    OneDown,
+    TenUp,
+    TenDown,
+}
+
+impl MapInfo {
+    pub fn new(base_size_x: i32, base_size_y: i32, base_percent: i32) -> Self {
+        fn map_builder(base_size_x: i32, base_size_y: i32, offset: &[Vec<i32>]) -> Vec<Vec<usize>> {
+            let mut map: Vec<Vec<usize>> =
+                vec![vec![0; base_size_x as usize]; base_size_y as usize];
+
+            for i in 0..offset.len() {
+                let offset_x = offset[i][0];
+                let offset_y = offset[i][1];
+                for dy in -1..=1 {
+                    for dx in -1..=1 {
+                        if dx == 0 && dy == 0 {
+                            continue;
+                        }
+
+                        let nx = offset_x + dx;
+                        let ny = offset_y + dy;
+
+                        if nx >= 0 && ny >= 0 && nx <= base_size_x - 1 && ny <= base_size_y - 1 {
+                            map[ny as usize][nx as usize] += 1;
+                        }
+                    }
+                }
+            }
+
+            for i in 0..offset.len() {
+                let offset_x = offset[i][0];
+                let offset_y = offset[i][1];
+                map[offset_y as usize][offset_x as usize] = 9;
+            }
+
+            for y in map.iter() {
+                for x in y.iter() {
+                    print!("{}", x)
+                }
+                println!()
+            }
+
+            map
+        }
+
+        fn set_offset_random(base_size_x: i32, base_size_y: i32, percent: i32) -> Vec<Vec<i32>> {
+            let mut offset: Vec<Vec<i32>> = vec![];
+            let mut num_of_bomb = ((base_size_x * base_size_y) * percent / 100) as usize;
+            let rand_x = fastrand::i32(0..base_size_x);
+            let rand_y = fastrand::i32(0..base_size_y);
+            offset.push(vec![rand_x, rand_y]);
+
+            if num_of_bomb == 0 {
+                num_of_bomb = 1;
+            }
+
+            while offset.len() != num_of_bomb {
+                let mut offset_bool: Vec<bool> = vec![];
+                let gate_x = fastrand::i32(0..base_size_x);
+                let gate_y = fastrand::i32(0..base_size_y);
+                for i in 0..offset.len() {
+                    if offset[i][0] != gate_x
+                        && offset[i][1] != gate_y
+                        && offset.len() != num_of_bomb
+                    {
+                        offset_bool.push(true);
+                    }
+                    if offset[i][0] == gate_x
+                        && offset[i][1] == gate_y
+                        && offset.len() != num_of_bomb
+                    {
+                        offset_bool.push(false);
+                    }
+                }
+                if offset_bool.iter().all(|&bool| bool) == true {
+                    offset.push(vec![gate_x, gate_y])
+                }
+            }
+
+            offset
+        }
+
+        let set_bomb_offset = set_offset_random(base_size_x, base_size_y, base_percent);
+
+        let remaining_bomb = set_bomb_offset.len();
+
+        let set_hint_num = map_builder(base_size_x, base_size_y, &set_bomb_offset);
+        Self {
+            map_width: base_size_x,
+            map_height: base_size_y,
+            bomb_percent: base_percent,
+            remaining_bombs: remaining_bomb as i32,
+            hint_number: set_hint_num,
+        }
+    }
+}

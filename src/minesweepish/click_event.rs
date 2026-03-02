@@ -1,4 +1,4 @@
-use crate::{AppState, Cell, CellSize, MapInfo, OpenState};
+use crate::minesweepish::ms_main::{AppState, Cell, CellSize, MapInfo, OpenState};
 use bevy::prelude::*;
 
 pub fn click_event(

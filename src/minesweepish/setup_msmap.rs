@@ -1,7 +1,7 @@
-use crate::{Cell, CellSize, MapInfo, OpenState};
+use crate::minesweepish::ms_main::{Cell, CellSize, MapInfo, OpenState};
 use bevy::prelude::*;
 
-use crate::GameLayer;
+use crate::minesweepish::ms_main::GameLayer;
 pub fn setup_ms(
     mut mapinfo: ResMut<MapInfo>,
     mut cellsize: ResMut<CellSize>,
