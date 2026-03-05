@@ -37,11 +37,11 @@ pub fn ms_main() {
                 // wasmの場合先にmetaファイルを参照し本体ファイルを探すので必須
                 meta_check: AssetMetaCheck::Never,
             ..default()
-        }
+            }
         )
         )
         .init_state::<AppState>()
-        .add_systems(Startup, setup_camera)
+        .add_systems(Startup, (setup_camera, setup_audio))
         .insert_resource(ClearColor(Color::srgb(0.5, 0.5, 1.0)))
         .insert_resource(MapInfo {
             map_width: 10,
@@ -50,7 +50,8 @@ pub fn ms_main() {
             remaining_bombs: 0,
             hint_number: vec![],
         })
-        .insert_resource(CellSize { cell_scale: 0 })
+        .init_resource::<CellSize>()
+        .init_resource::<SoundsLoader>()
         .add_systems(OnEnter(AppState::Title), setup_title)
         .add_systems(OnExit(AppState::Title), clean_title)
         .add_systems(OnEnter(AppState::Playing), setup_ms)
@@ -164,6 +165,42 @@ fn setup_camera(mut commands: Commands, asset_server: Res<AssetServer>) {
             ..default()
         },
     ));
+
+    commands.spawn((
+        Node {
+            position_type: PositionType::Relative,
+            top: Val::Px(0.),
+            left: Val::Px(0.),
+            width: Val::Px(32.),
+            height: Val::Px(32.),
+            ..default()
+        },
+        Button,
+        ));
+}
+
+/*
+bgmの再生
+最初のボリューム調整
+タイトルにbgmとseのボリューム設定を追加する
+ボタンをレイヤーごとにenumで管理する
+*/
+
+#[derive(Resource, Default)]
+pub struct SoundsLoader {
+    pub bgm: Handle<AudioSource>,
+    pub start: Handle<AudioSource>,
+    pub setting: Handle<AudioSource>,
+    pub open_cell: Handle<AudioSource>,
+    pub failed: Handle<AudioSource>,
+}
+
+fn setup_audio( mut sounds_loader: ResMut<SoundsLoader>, asset_server: Res<AssetServer> ) {
+    sounds_loader.bgm = asset_server.load("sounds/bgm.wav");
+    sounds_loader.start = asset_server.load("sounds/start.wav");
+    sounds_loader.setting = asset_server.load("sounds/setting_button.wav");
+    sounds_loader.open_cell = asset_server.load("sounds/open_cell.wav");
+    sounds_loader.failed = asset_server.load("sounds/failed.wav");
 }
 
 #[derive(Component)]
@@ -194,7 +231,7 @@ pub struct OpenState {
     pub flag: bool,
 }
 
-#[derive(Resource)]
+#[derive(Resource, Default)]
 pub struct CellSize {
     pub cell_scale: i32,
 }

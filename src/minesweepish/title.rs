@@ -1,6 +1,7 @@
+use bevy::audio::PlaybackMode;
 use bevy::prelude::*;
 
-use crate::minesweepish::ms_main::{MapInfo, SettingButton, SettingType, TitleLayer};
+use crate::minesweepish::ms_main::{MapInfo, SettingButton, SettingType, SoundsLoader, TitleLayer};
 
 pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapinfo: Res<MapInfo>) {
 
@@ -597,6 +598,8 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
 use crate::minesweepish::ms_main::AppState;
 
 pub fn start_button(
+    mut commands: Commands,
+    sounds: Res<SoundsLoader>,
     mut ints_query: Query<(&Interaction, &Children, &mut BackgroundColor), (With<Button>, Without<SettingButton>)>,
     mut text_query: Query<&mut TextShadow>,
     mut next_state: ResMut<NextState<AppState>>,
@@ -613,6 +616,10 @@ pub fn start_button(
                 shadow.color = Color::NONE;
             }
             if *ints == Interaction::Pressed {
+                commands.spawn((
+                    AudioPlayer::new(sounds.start.clone()),
+                    PlaybackSettings::DESPAWN,
+                ));
                 next_state.set(AppState::Playing);
             }
             if *ints == Interaction::None {
@@ -626,6 +633,8 @@ pub fn start_button(
 }
 
 pub fn map_setting(
+    mut commands: Commands,
+    sounds: Res<SoundsLoader>,
     // Changedでinteraction処理がされたentityだけを指定でき,離されたintsも受け取れるため処理が毎フレーム行われない.
     mut buttons_query: Query<(&Interaction, &SettingType, &SettingButton, &mut BorderColor, &mut BackgroundColor, &mut Node), Changed<Interaction>>,
     mut text_query: Query<(&SettingType, &mut Text), (With<SettingType>, Without<SettingButton>)>,
@@ -633,6 +642,11 @@ pub fn map_setting(
 ) {
     for (ints, types, buttons, mut bordercolor, mut bgcolor, mut node) in &mut buttons_query {
         if *ints == Interaction::Pressed {
+            commands.spawn((
+                AudioPlayer::new(sounds.setting.clone()),
+                PlaybackSettings::DESPAWN,
+            ));
+
             use crate::minesweepish::ms_main::{SettingButton::*, SettingType::*};
 
             match (types, buttons) {

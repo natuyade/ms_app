@@ -1,4 +1,5 @@
-use crate::minesweepish::ms_main::{AppState, Cell, CellSize, MapInfo, OpenState};
+use bevy::audio::PlaybackMode;
+use crate::minesweepish::ms_main::{AppState, Cell, CellSize, MapInfo, OpenState, SoundsLoader};
 use bevy::prelude::*;
 
 pub fn click_event(
@@ -8,6 +9,8 @@ pub fn click_event(
     mut cells: Query<(&Cell, &mut OpenState, &mut Text2d, &mut TextColor)>,
     windows: Query<&Window>,
     mut next_state: ResMut<NextState<AppState>>,
+    mut commands: Commands,
+    sounds: Res<SoundsLoader>,
 ) {
     if mouse.just_pressed(MouseButton::Left) || mouse.just_pressed(MouseButton::Right){
         let window = windows.single().unwrap();
@@ -35,16 +38,24 @@ pub fn click_event(
                 if map_x >= 0 && map_y >= 0 && map_x <= size_x - 1 && map_y <= size_y - 1 {
                     println!("マウス座標: {:?}__{:?}", world_x, world_y);
                     println!("ワールド座標: {:?}__{:?}", map_x, map_y);
+
+                    for (cell, state,_,_) in &mut cells {
+                        if cell.cell_x == map_x && cell.cell_y == map_y && hint_num[map_y as usize][map_x as usize] != 9 && state.opened == false {
+                            commands.spawn((AudioPlayer::new(sounds.open_cell.clone()), PlaybackSettings::DESPAWN));
+                        }
+                    }
+
                     queue.push(vec![map_x, map_y]);
                     while !queue.is_empty() {
                         let queue_pop = queue.pop().unwrap();
                         let pop_x = queue_pop[0];
                         let pop_y = queue_pop[1];
-                        for (cell, mut state, mut text, mut color) in cells.iter_mut() {
+                        for (cell, mut state, mut text, mut color) in &mut cells {
                             if cell.cell_x == pop_x && cell.cell_y == pop_y {
                                 if hint_num[pop_y as usize][pop_x as usize] != 0 {
                                     if state.opened == false && state.flag == false && state.question == false {
                                         if hint_num[pop_y as usize][pop_x as usize] == 9 {
+                                            commands.spawn((AudioPlayer(sounds.failed.clone()), PlaybackSettings::DESPAWN));
                                             next_state.set(AppState::GameOver);
                                         }
                                         state.opened = true;
