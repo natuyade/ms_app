@@ -28,6 +28,10 @@
             pkg-config
             openssl
             nodejs
+
+            wayland
+            wayland-protocols
+            libxkbcommon
           ];
 
           # fish利用でもOK。環境変数の補助
