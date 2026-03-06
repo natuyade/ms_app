@@ -62,7 +62,7 @@ pub fn clean_gameclear( mut commands: Commands, query: Query<Entity, With<ClearL
     }
 }
 
-pub fn title_button(
+pub fn back_to_title_button(
     mapinfo: Res<MapInfo>,
     mut ints_query: Query<(&Interaction, &mut BackgroundColor),(With<Button>, Changed<Interaction>)>,
     mut next_state: ResMut<NextState<AppState>>,

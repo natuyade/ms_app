@@ -30,5 +30,6 @@ pub fn App() -> impl IntoView {
 }
 
 fn main() {
-    mount_to_body(App);
+    //mount_to_body(App);
+    minesweepish::ms_main::ms_main()
 }

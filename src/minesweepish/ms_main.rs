@@ -2,10 +2,10 @@ use bevy::asset::AssetMetaCheck;
 use bevy::prelude::*;
 
 use crate::minesweepish::click_event::{check_remaining, click_event};
-use crate::minesweepish::gameclear::{clean_gameclear, setup_gameclear, title_button};
+use crate::minesweepish::gameclear::{clean_gameclear, setup_gameclear, back_to_title_button};
 use crate::minesweepish::gameover::{back_button, clean_gameover, setup_gameover};
 use crate::minesweepish::setup_msmap::{clean_ms, setup_ms};
-use crate::minesweepish::title::{clean_title, map_setting, setup_title, start_button};
+use crate::minesweepish::title::{clean_title, map_setting, setup_title, title_buttons};
 use crate::minesweepish::title_bg::title_rotate;
 
 #[derive(States, Debug, Clone, PartialEq, Eq, Hash, Default)]
@@ -19,7 +19,8 @@ pub enum AppState {
 
 pub fn ms_main() {
     App::new()
-        .add_plugins(DefaultPlugins.set(
+        .add_plugins(DefaultPlugins
+            /*.set(
             WindowPlugin {
                 primary_window: Some(
                     Window {
@@ -30,7 +31,7 @@ pub fn ms_main() {
                 ),
                 ..default()
             }
-        ).set(
+        ) */.set(
             // 今回はmetaファイルを用意していないためNeverにしている
             AssetPlugin {
                 file_path: "assets/".to_string(),
@@ -52,6 +53,7 @@ pub fn ms_main() {
         })
         .init_resource::<CellSize>()
         .init_resource::<SoundsLoader>()
+        .init_resource::<BgmPlaying>()
         .add_systems(OnEnter(AppState::Title), setup_title)
         .add_systems(OnExit(AppState::Title), clean_title)
         .add_systems(OnEnter(AppState::Playing), setup_ms)
@@ -63,12 +65,12 @@ pub fn ms_main() {
             Update,
             (
                 title_rotate,
-                start_button.run_if(in_state(AppState::Title)),
+                title_buttons.run_if(in_state(AppState::Title)),
                 map_setting.run_if(in_state(AppState::Title)),
                 click_event.run_if(in_state(AppState::Playing)),
                 check_remaining.after(click_event).run_if(in_state(AppState::Playing)),
                 back_button.run_if(in_state(AppState::GameOver)),
-                title_button.run_if(in_state(AppState::GameClear)),
+                back_to_title_button.run_if(in_state(AppState::GameClear)),
             ),
         )
         .run();
@@ -165,26 +167,7 @@ fn setup_camera(mut commands: Commands, asset_server: Res<AssetServer>) {
             ..default()
         },
     ));
-
-    commands.spawn((
-        Node {
-            position_type: PositionType::Relative,
-            top: Val::Px(0.),
-            left: Val::Px(0.),
-            width: Val::Px(32.),
-            height: Val::Px(32.),
-            ..default()
-        },
-        Button,
-        ));
 }
-
-/*
-bgmの再生
-最初のボリューム調整
-タイトルにbgmとseのボリューム設定を追加する
-ボタンをレイヤーごとにenumで管理する
-*/
 
 #[derive(Resource, Default)]
 pub struct SoundsLoader {
@@ -244,6 +227,15 @@ pub struct MapInfo {
     pub remaining_bombs: i32,
     pub hint_number: Vec<Vec<usize>>,
 }
+
+#[derive(Component)]
+pub enum TitleButtonType {
+    StartButton,
+    BgmToggleButton,
+}
+
+#[derive(Resource, Default)]
+pub struct BgmPlaying (bool);
 
 #[derive(Component)]
 pub enum SettingType {

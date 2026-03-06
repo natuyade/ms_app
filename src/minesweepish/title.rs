@@ -1,7 +1,7 @@
 use bevy::audio::PlaybackMode;
 use bevy::prelude::*;
 
-use crate::minesweepish::ms_main::{MapInfo, SettingButton, SettingType, SoundsLoader, TitleLayer};
+use crate::minesweepish::ms_main::{TitleButtonType, MapInfo, SettingButton, SettingType, SoundsLoader, TitleLayer};
 
 pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapinfo: Res<MapInfo>) {
 
@@ -57,6 +57,7 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
                         ..default()
                     },
                     Button,
+                    TitleButtonType::StartButton,
                     BackgroundColor(Color::srgb(0.0, 0.4, 0.4)),
                     children![(
                         Text::new("スタート"),
@@ -593,41 +594,132 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
                 });
             });
         });
+
+    // bgm toggle button
+    commands.spawn((
+        Node {
+            position_type: PositionType::Relative,
+            top: Val::Px(0.),
+            left: Val::Px(0.),
+            width: Val::Px(64.),
+            height: Val::Px(64.),
+            ..default()
+        },
+        Button,
+        TitleButtonType::BgmToggleButton,
+        BackgroundColor(Color::srgb(0.,1.,0.)),
+        children![(
+            Text::new("BGM TOGGLE(OFF)"),
+            TextFont {
+                font: asset_server.load("fonts/unifont-17.0.03.otf"),
+                font_size: 64.0,
+                ..default()
+            },
+            TextColor(Color::srgb(1.0, 0.0, 1.0)),
+            TextShadow {
+                offset: Vec2::new(2.0, 2.0),
+                color: Color::srgb(1.0, 0.0, 1.0),
+            }
+        )],
+        ));
+/*
+bgmの再生
+最初のボリューム調整
+タイトルにbgmとseのボリューム設定を追加する
+ボタンをレイヤーごとにenumで管理する
+*/
 }
 
 use crate::minesweepish::ms_main::AppState;
 
-pub fn start_button(
+pub fn title_buttons(
     mut commands: Commands,
     sounds: Res<SoundsLoader>,
-    mut ints_query: Query<(&Interaction, &Children, &mut BackgroundColor), (With<Button>, Without<SettingButton>)>,
-    mut text_query: Query<&mut TextShadow>,
+    mut bgm_playing: ResMut<&mut BgmPlayng>,
+    mut ints_query: Query<(&Interaction, &TitleButtonType, &Children, &mut BackgroundColor), (With<Button>, Without<SettingButton>, Changed<Interaction>)>,
+    mut text_query: Query<(Entity, &mut TextShadow, &mut Text)>,
     mut next_state: ResMut<NextState<AppState>>,
 ) {
-    for (ints, children, mut color) in &mut ints_query {
-
+    for (ints, title_buttons, children, mut bgcolor) in &mut ints_query {
         let button_text = children[0];
 
-        if let Ok(mut shadow) = text_query.get_mut(button_text) {
-
-            if *ints == Interaction::Hovered {
-                *color = BackgroundColor(Color::srgb(0.0, 0.6, 0.6));
-                shadow.offset = Vec2::new(0.0,0.0);
-                shadow.color = Color::NONE;
+        if let Ok((entity, mut shadow, mut text)) = text_query.get_mut(button_text) {
+            match *ints {
+                Interaction::Hovered => {
+                    match title_buttons {
+                        TitleButtonType::StartButton => {
+                            *bgcolor = BackgroundColor(Color::srgb(0.0, 0.6, 0.6));
+                            shadow.offset = Vec2::new(0.0,0.0);
+                            shadow.color = Color::NONE;
+                        }
+                        TitleButtonType::BgmToggleButton => {
+                            match *bgm_playing {
+                                true => {
+                                    *bgcolor = BackgroundColor(Color::srgb(0.,1.,0.));
+                                    shadow.offset = Vec2::new(0.0,0.0);
+                                    shadow.color = Color::NONE;
+                                }
+                                false => {
+                                    *bgcolor = BackgroundColor(Color::srgb(0.5,1.,0.5));
+                                    shadow.offset = Vec2::new(0.0,0.0);
+                                    shadow.color = Color::NONE;
+                                }
+                            }
+                        }
+                    }
+                },
+                Interaction::Pressed => {
+                    match title_buttons {
+                        TitleButtonType::StartButton => {
+                            commands.spawn((
+                                AudioPlayer::new(sounds.start.clone()),
+                                PlaybackSettings::DESPAWN,
+                            ));
+                            next_state.set(AppState::Playing);
+                        }
+                        TitleButtonType::BgmToggleButton => {
+                            match *bgm_playing {
+                                true => {
+                                    commands.entity(entity).despawn();
+                                    **text = "BGM TOGGLE(OFF)".to_string;
+                                    *bgm_playing = false;
+                                }
+                                false => {
+                                    *bgm_playing = true;
+                                    commands.spawn((
+                                        AudioPlayer::new(sounds.bgm.clone()),
+                                        PlaybackSettings::LOOP,
+                                    ));
+                                    **text = "BGM TOGGLE(ON)".to_string;
+                                }
+                            }
+                        }
+                    }
+                },
+                Interaction::None => {
+                    match title_buttons {
+                        TitleButtonType::StartButton => {
+                            *bgcolor = BackgroundColor(Color::srgb(0.0, 0.4, 0.4));
+                            shadow.offset = Vec2::new(0.0,2.0);
+                            shadow.color = Color::BLACK;
+                        }
+                        TitleButtonType::BgmToggleButton => {
+                            match *bgm_playing {
+                                true => {
+                                    *bgcolor = BackgroundColor(Color::srgb(1.,0.,1.));
+                                    shadow.offset = Vec2::new(0.0,2.0);
+                                    shadow.color = Color::BLACK;
+                                }
+                                false => {
+                                    *bgcolor = BackgroundColor(Color::srgb(0.,0.5,0.));
+                                    shadow.offset = Vec2::new(0.0,2.0);
+                                    shadow.color = Color::BLACK;
+                                }
+                            }
+                        }
+                    }
+                },
             }
-            if *ints == Interaction::Pressed {
-                commands.spawn((
-                    AudioPlayer::new(sounds.start.clone()),
-                    PlaybackSettings::DESPAWN,
-                ));
-                next_state.set(AppState::Playing);
-            }
-            if *ints == Interaction::None {
-                *color = BackgroundColor(Color::srgb(0.0, 0.4, 0.4));
-                shadow.offset = Vec2::new(0.0,2.0);
-                shadow.color = Color::BLACK;
-            }
-
         }
     }
 }
