@@ -1,7 +1,15 @@
 use bevy::audio::PlaybackMode;
 use bevy::prelude::*;
 
-use crate::minesweepish::ms_main::{TitleButtonType, MapInfo, SettingButton, SettingType, SoundsLoader, TitleLayer};
+use crate::minesweepish::ms_main::{
+    BgmStats,
+    TitleButtonType,
+    MapInfo,
+    SettingButton,
+    SettingType,
+    SoundsLoader,
+    TitleLayer
+};
 
 pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapinfo: Res<MapInfo>) {
 
@@ -601,7 +609,7 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
             position_type: PositionType::Relative,
             top: Val::Px(0.),
             left: Val::Px(0.),
-            width: Val::Px(64.),
+            width: Val::Px(256.),
             height: Val::Px(64.),
             ..default()
         },
@@ -612,7 +620,7 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
             Text::new("BGM TOGGLE(OFF)"),
             TextFont {
                 font: asset_server.load("fonts/unifont-17.0.03.otf"),
-                font_size: 64.0,
+                font_size: 48.0,
                 ..default()
             },
             TextColor(Color::srgb(1.0, 0.0, 1.0)),
@@ -635,15 +643,15 @@ use crate::minesweepish::ms_main::AppState;
 pub fn title_buttons(
     mut commands: Commands,
     sounds: Res<SoundsLoader>,
-    mut bgm_playing: ResMut<&mut BgmPlayng>,
+    mut bgm_stats: ResMut<BgmStats>,
     mut ints_query: Query<(&Interaction, &TitleButtonType, &Children, &mut BackgroundColor), (With<Button>, Without<SettingButton>, Changed<Interaction>)>,
-    mut text_query: Query<(Entity, &mut TextShadow, &mut Text)>,
+    mut text_query: Query<(&mut TextShadow, &mut Text)>,
     mut next_state: ResMut<NextState<AppState>>,
 ) {
     for (ints, title_buttons, children, mut bgcolor) in &mut ints_query {
         let button_text = children[0];
 
-        if let Ok((entity, mut shadow, mut text)) = text_query.get_mut(button_text) {
+        if let Ok((mut shadow, mut text)) = text_query.get_mut(button_text) {
             match *ints {
                 Interaction::Hovered => {
                     match title_buttons {
@@ -653,17 +661,14 @@ pub fn title_buttons(
                             shadow.color = Color::NONE;
                         }
                         TitleButtonType::BgmToggleButton => {
-                            match *bgm_playing {
-                                true => {
-                                    *bgcolor = BackgroundColor(Color::srgb(0.,1.,0.));
-                                    shadow.offset = Vec2::new(0.0,0.0);
-                                    shadow.color = Color::NONE;
-                                }
-                                false => {
-                                    *bgcolor = BackgroundColor(Color::srgb(0.5,1.,0.5));
-                                    shadow.offset = Vec2::new(0.0,0.0);
-                                    shadow.color = Color::NONE;
-                                }
+                            if bgm_stats.playingbgm.is_some() {
+                                *bgcolor = BackgroundColor(Color::srgb(0.,1.,0.));
+                                shadow.offset = Vec2::new(0.0,0.0);
+                                shadow.color = Color::NONE;
+                            } else {
+                                *bgcolor = BackgroundColor(Color::srgb(0.5,1.,0.5));
+                                shadow.offset = Vec2::new(0.0,0.0);
+                                shadow.color = Color::NONE;
                             }
                         }
                     }
@@ -678,20 +683,16 @@ pub fn title_buttons(
                             next_state.set(AppState::Playing);
                         }
                         TitleButtonType::BgmToggleButton => {
-                            match *bgm_playing {
-                                true => {
-                                    commands.entity(entity).despawn();
-                                    **text = "BGM TOGGLE(OFF)".to_string;
-                                    *bgm_playing = false;
-                                }
-                                false => {
-                                    *bgm_playing = true;
-                                    commands.spawn((
-                                        AudioPlayer::new(sounds.bgm.clone()),
-                                        PlaybackSettings::LOOP,
-                                    ));
-                                    **text = "BGM TOGGLE(ON)".to_string;
-                                }
+                            if let Some(entity) = bgm_stats.playingbgm {
+                                commands.entity(entity).despawn();
+                                **text = "BGM TOGGLE(OFF)".to_string();
+                            } else {
+                                let entity = commands.spawn((
+                                    AudioPlayer::new(sounds.bgm.clone()),
+                                    PlaybackSettings::LOOP
+                                )).id();
+                                bgm_stats.playingbgm = Some(entity);
+                                **text = "BGM TOGGLE(ON)".to_string();
                             }
                         }
                     }
@@ -704,17 +705,14 @@ pub fn title_buttons(
                             shadow.color = Color::BLACK;
                         }
                         TitleButtonType::BgmToggleButton => {
-                            match *bgm_playing {
-                                true => {
+                            if bgm_stats.playingbgm.is_some() {
                                     *bgcolor = BackgroundColor(Color::srgb(1.,0.,1.));
                                     shadow.offset = Vec2::new(0.0,2.0);
                                     shadow.color = Color::BLACK;
-                                }
-                                false => {
+                            } else {
                                     *bgcolor = BackgroundColor(Color::srgb(0.,0.5,0.));
                                     shadow.offset = Vec2::new(0.0,2.0);
                                     shadow.color = Color::BLACK;
-                                }
                             }
                         }
                     }
@@ -754,7 +752,7 @@ pub fn map_setting(
 
                 (BombPercent, TenDown) => settings.bomb_percent = (settings.bomb_percent - 10).max(1).min(99),
                 (BombPercent, OneDown) => settings.bomb_percent = (settings.bomb_percent - 1).max(1).min(99),
-                (BombPercent, OneUp) => settings.bomb_percent = (settings.bomb_percent + 1).max(1).min(99),
+                (BombPercent, OneUp) => settings.bomb_percent = (settings.bomb_percent + 1).clamp(1, 99),
                 (BombPercent, TenUp) => settings.bomb_percent = (settings.bomb_percent + 10).max(1).min(99),
             }
 

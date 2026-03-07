@@ -53,7 +53,7 @@ pub fn ms_main() {
         })
         .init_resource::<CellSize>()
         .init_resource::<SoundsLoader>()
-        .init_resource::<BgmPlaying>()
+        .init_resource::<BgmStats>()
         .add_systems(OnEnter(AppState::Title), setup_title)
         .add_systems(OnExit(AppState::Title), clean_title)
         .add_systems(OnEnter(AppState::Playing), setup_ms)
@@ -235,7 +235,9 @@ pub enum TitleButtonType {
 }
 
 #[derive(Resource, Default)]
-pub struct BgmPlaying (bool);
+pub struct BgmStats {
+    pub playingbgm: Option<Entity>,
+}
 
 #[derive(Component)]
 pub enum SettingType {
