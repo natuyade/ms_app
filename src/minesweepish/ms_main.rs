@@ -5,7 +5,7 @@ use crate::minesweepish::click_event::{check_remaining, click_event};
 use crate::minesweepish::gameclear::{clean_gameclear, setup_gameclear, back_to_title_button};
 use crate::minesweepish::gameover::{back_button, clean_gameover, setup_gameover};
 use crate::minesweepish::setup_msmap::{clean_ms, setup_ms};
-use crate::minesweepish::title::{clean_title, map_setting, setup_title, title_buttons};
+use crate::minesweepish::title::{clean_title, map_setting, setup_title, title_buttons, volume_slider};
 use crate::minesweepish::title_bg::title_rotate;
 
 #[derive(States, Debug, Clone, PartialEq, Eq, Hash, Default)]
@@ -53,7 +53,7 @@ pub fn ms_main() {
         })
         .init_resource::<CellSize>()
         .init_resource::<SoundsLoader>()
-        .init_resource::<BgmPlaying>()
+        .init_resource::<BgmStats>()
         .add_systems(OnEnter(AppState::Title), setup_title)
         .add_systems(OnExit(AppState::Title), clean_title)
         .add_systems(OnEnter(AppState::Playing), setup_ms)
@@ -65,6 +65,7 @@ pub fn ms_main() {
             Update,
             (
                 title_rotate,
+                volume_slider.run_if(in_state(AppState::Title)),
                 title_buttons.run_if(in_state(AppState::Title)),
                 map_setting.run_if(in_state(AppState::Title)),
                 click_event.run_if(in_state(AppState::Playing)),
@@ -235,7 +236,15 @@ pub enum TitleButtonType {
 }
 
 #[derive(Resource, Default)]
-pub struct BgmPlaying (bool);
+pub struct BgmStats {
+    pub playingbgm: Option<Entity>,
+}
+
+#[derive(Component)]
+pub enum VolumeSetting {
+    VolumeTrack,
+    VolumeSlider,
+}
 
 #[derive(Component)]
 pub enum SettingType {
