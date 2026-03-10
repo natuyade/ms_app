@@ -1,7 +1,7 @@
 use bevy::audio::PlaybackMode;
 use bevy::prelude::*;
 use bevy::ui::RelativeCursorPosition;
-use crate::minesweepish::ms_main::{BgmStats, TitleButtonType, MapInfo, SettingButton, SettingType, SoundsLoader, TitleLayer, VolumeSetting};
+use crate::minesweepish::ms_main::{BgmState, TitleButtonType, MapInfo, SettingButton, SettingType, SoundsLoader, TitleLayer, VolumeSetting, VolumeValue};
 
 pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapinfo: Res<MapInfo>) {
 
@@ -627,7 +627,7 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
     commands.spawn((
         Node {
             position_type: PositionType::Relative,
-            top: Val::Percent(50.),
+            top: Val::Px(432.),
             left: Val::ZERO,
             width: Val::Px(128.),
             height: Val::Px(32.),
@@ -635,7 +635,8 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
         },
         BackgroundColor (Color::srgb(0.,1.,1.)),
         RelativeCursorPosition::default(),
-        VolumeSetting::VolumeTrack,
+        Button,
+        VolumeSetting::BGM,
         children![(
             Node {
                 width: Val::Percent(50.0),
@@ -646,9 +647,34 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
                 ..default()
             },
             BackgroundColor (Color::srgb(1.,1.,1.)),
-            VolumeSetting::VolumeSlider,
         )],
         ));
+
+    commands.spawn((
+        Node {
+            position_type: PositionType::Relative,
+            top: Val::Px(480.),
+            left: Val::ZERO,
+            width: Val::Px(128.),
+            height: Val::Px(32.),
+            ..default()
+        },
+        BackgroundColor (Color::srgb(0.,1.,1.)),
+        RelativeCursorPosition::default(),
+        Button,
+        VolumeSetting::SE,
+        children![(
+            Node {
+                width: Val::Percent(50.0),
+                height: Val::Percent(100.0),
+                justify_content: JustifyContent::End,
+                align_items: AlignItems::Center,
+                overflow: Overflow::clip(),
+                ..default()
+            },
+            BackgroundColor (Color::srgb(1.,1.,1.)),
+        )],
+    ));
 /*
 bgmの再生
 最初のボリューム調整
@@ -659,26 +685,47 @@ bgmの再生
 use crate::minesweepish::ms_main::AppState;
 
 pub fn volume_slider(
-    mut commands: Commands,
-    mut slider_query: Query<&mut Node, &mut RelativeCursorPosition, With<VolumeSetting>>,
+    //relative cursor positionは始点と終点が-0.5,0.5に固定されたマウス座標を取得できる
+    cursor_query: Query<(&Interaction, &VolumeSetting, &RelativeCursorPosition, &Children), With<Button>>,
+    mut node_query: Query<&mut Node>,
+    mut volume: ResMut<VolumeValue>,
 ) {
-    for node in slider_query {
-
+    for (ints, vlm_type, cursor_pos, children) in &cursor_query {
+        if *ints == Interaction::Pressed {
+            match vlm_type {
+                VolumeSetting::BGM => {
+                    let Some(pos) = cursor_pos.normalized else { continue };
+                    // i32をはさんで小数点丸め
+                    let slider_width = ((pos.x + 0.5) * 100.).clamp(0., 100.) as i32;
+                    if let Ok(mut node) = node_query.get_mut(children[0]) {
+                        node.width = Val::Percent(slider_width as f32);
+                        volume.bgm = slider_width as f32 / 100.;
+                    }
+                }
+                VolumeSetting::SE => {
+                    let Some(pos) = cursor_pos.normalized else { continue };
+                    let slider_width = ((pos.x + 0.5) * 100.).clamp(0., 100.) as i32;
+                    if let Ok(mut node) = node_query.get_mut(children[0]) {
+                        node.width = Val::Percent(slider_width as f32);
+                        volume.se = slider_width as f32 / 100.;
+                    }
+                }
+            }
+        }
     }
 }
 
 pub fn title_buttons(
     mut commands: Commands,
     sounds: Res<SoundsLoader>,
-    mut bgm_stats: ResMut<BgmStats>,
+    mut bgm_stats: ResMut<BgmState>,
     mut ints_query: Query<(&Interaction, &TitleButtonType, &Children, &mut BackgroundColor), (With<Button>, Without<SettingButton>, Changed<Interaction>)>,
     mut text_query: Query<(&mut TextShadow, &mut Text)>,
     mut next_state: ResMut<NextState<AppState>>,
 ) {
     for (ints, title_buttons, children, mut bgcolor) in &mut ints_query {
-        let button_text = children[0];
 
-        if let Ok((mut shadow, mut text)) = text_query.get_mut(button_text) {
+        if let Ok((mut shadow, mut text)) = text_query.get_mut(children[0]) {
             match *ints {
                 Interaction::Hovered => {
                     match title_buttons {
@@ -717,7 +764,7 @@ pub fn title_buttons(
                             } else {
                                 let entity = commands.spawn((
                                     AudioPlayer::new(sounds.bgm.clone()),
-                                    PlaybackSettings::LOOP
+                                    PlaybackSettings::LOOP,
                                 )).id();
                                 bgm_stats.playingbgm = Some(entity);
                                 **text = "BGM (ON)".to_string();

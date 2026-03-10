@@ -53,7 +53,8 @@ pub fn ms_main() {
         })
         .init_resource::<CellSize>()
         .init_resource::<SoundsLoader>()
-        .init_resource::<BgmStats>()
+        .init_resource::<BgmState>()
+        .init_resource::<VolumeValue>()
         .add_systems(OnEnter(AppState::Title), setup_title)
         .add_systems(OnExit(AppState::Title), clean_title)
         .add_systems(OnEnter(AppState::Playing), setup_ms)
@@ -236,14 +237,20 @@ pub enum TitleButtonType {
 }
 
 #[derive(Resource, Default)]
-pub struct BgmStats {
+pub struct BgmState {
     pub playingbgm: Option<Entity>,
 }
 
 #[derive(Component)]
 pub enum VolumeSetting {
-    VolumeTrack,
-    VolumeSlider,
+    BGM,
+    SE,
+}
+
+#[derive(Resource, Default)]
+pub struct VolumeValue {
+    pub bgm: f32,
+    pub se: f32,
 }
 
 #[derive(Component)]
