@@ -5,7 +5,7 @@ use crate::minesweepish::click_event::{check_remaining, click_event};
 use crate::minesweepish::gameclear::{clean_gameclear, setup_gameclear, back_to_title_button};
 use crate::minesweepish::gameover::{back_button, clean_gameover, setup_gameover};
 use crate::minesweepish::setup_msmap::{clean_ms, setup_ms};
-use crate::minesweepish::title::{clean_title, map_setting, setup_title, title_buttons, volume_slider};
+use crate::minesweepish::title::{clean_title, map_setting, setup_title, title_buttons, volume_slider, volume_settings};
 use crate::minesweepish::title_bg::title_rotate;
 
 #[derive(States, Debug, Clone, PartialEq, Eq, Hash, Default)]
@@ -31,7 +31,7 @@ pub fn ms_main() {
                 ),
                 ..default()
             }
-        ) */.set(
+        ).set(
             // 今回はmetaファイルを用意していないためNeverにしている
             AssetPlugin {
                 file_path: "assets/".to_string(),
@@ -39,7 +39,7 @@ pub fn ms_main() {
                 meta_check: AssetMetaCheck::Never,
             ..default()
             }
-        )
+        ) */
         )
         .init_state::<AppState>()
         .add_systems(Startup, (setup_camera, setup_audio))
@@ -51,10 +51,11 @@ pub fn ms_main() {
             remaining_bombs: 0,
             hint_number: vec![],
         })
+        .insert_resource(VolumeValue { bgm:0.2, se:0.2 })
         .init_resource::<CellSize>()
         .init_resource::<SoundsLoader>()
         .init_resource::<BgmState>()
-        .init_resource::<VolumeValue>()
+        .init_resource::<DragState>()
         .add_systems(OnEnter(AppState::Title), setup_title)
         .add_systems(OnExit(AppState::Title), clean_title)
         .add_systems(OnEnter(AppState::Playing), setup_ms)
@@ -67,6 +68,7 @@ pub fn ms_main() {
             (
                 title_rotate,
                 volume_slider.run_if(in_state(AppState::Title)),
+                volume_settings.run_if(in_state(AppState::Title)),
                 title_buttons.run_if(in_state(AppState::Title)),
                 map_setting.run_if(in_state(AppState::Title)),
                 click_event.run_if(in_state(AppState::Playing)),
@@ -247,7 +249,7 @@ pub enum VolumeSetting {
     SE,
 }
 
-#[derive(Resource, Default)]
+#[derive(Resource)]
 pub struct VolumeValue {
     pub bgm: f32,
     pub se: f32,

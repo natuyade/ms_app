@@ -1,9 +1,15 @@
-use bevy::audio::PlaybackMode;
+use bevy::audio::{PlaybackMode, Volume};
+use bevy::audio::PlaybackMode::{Despawn, Loop};
 use bevy::prelude::*;
 use bevy::ui::RelativeCursorPosition;
 use crate::minesweepish::ms_main::{BgmState, TitleButtonType, MapInfo, SettingButton, SettingType, SoundsLoader, TitleLayer, VolumeSetting, VolumeValue};
 
-pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapinfo: Res<MapInfo>) {
+pub fn setup_title(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mapinfo: Res<MapInfo>,
+    volume: Res<VolumeValue,>
+) {
 
     commands
         // wrapper
@@ -628,7 +634,7 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
         Node {
             position_type: PositionType::Relative,
             top: Val::Px(432.),
-            left: Val::ZERO,
+            left: Val::Px(8.),
             width: Val::Px(128.),
             height: Val::Px(32.),
             ..default()
@@ -639,14 +645,14 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
         VolumeSetting::BGM,
         children![(
             Node {
-                width: Val::Percent(50.0),
+                width: Val::Percent(volume.bgm * 100.),
                 height: Val::Percent(100.0),
                 justify_content: JustifyContent::End,
                 align_items: AlignItems::Center,
                 overflow: Overflow::clip(),
                 ..default()
             },
-            BackgroundColor (Color::srgb(1.,1.,1.)),
+            BackgroundColor (Color::srgb(0.,1.,0.)),
         )],
         ));
 
@@ -654,7 +660,7 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
         Node {
             position_type: PositionType::Relative,
             top: Val::Px(480.),
-            left: Val::ZERO,
+            left: Val::Px(8.),
             width: Val::Px(128.),
             height: Val::Px(32.),
             ..default()
@@ -665,7 +671,7 @@ pub fn setup_title(mut commands: Commands, asset_server: Res<AssetServer>, mapin
         VolumeSetting::SE,
         children![(
             Node {
-                width: Val::Percent(50.0),
+                width: Val::Percent(volume.se * 100.),
                 height: Val::Percent(100.0),
                 justify_content: JustifyContent::End,
                 align_items: AlignItems::Center,
@@ -715,9 +721,22 @@ pub fn volume_slider(
     }
 }
 
+pub fn volume_settings(
+    volume: Res<VolumeValue>,
+    bgm: Res<BgmState>,
+    mut audio_query: Query<&mut AudioSink>,
+) {
+    if volume.is_changed() {
+        let Some(entity) = bgm.playingbgm else { return };
+        let Ok(mut sink) = audio_query.get_mut(entity) else { return } ;
+        sink.set_volume(Volume::Linear(volume.bgm));
+    }
+}
+
 pub fn title_buttons(
     mut commands: Commands,
     sounds: Res<SoundsLoader>,
+    volume: Res<VolumeValue>,
     mut bgm_stats: ResMut<BgmState>,
     mut ints_query: Query<(&Interaction, &TitleButtonType, &Children, &mut BackgroundColor), (With<Button>, Without<SettingButton>, Changed<Interaction>)>,
     mut text_query: Query<(&mut TextShadow, &mut Text)>,
@@ -752,7 +771,11 @@ pub fn title_buttons(
                         TitleButtonType::StartButton => {
                             commands.spawn((
                                 AudioPlayer::new(sounds.start.clone()),
-                                PlaybackSettings::DESPAWN,
+                                PlaybackSettings {
+                                    mode: Despawn,
+                                    volume: Volume::Linear(volume.bgm),
+                                    ..default()
+                                },
                             ));
                             next_state.set(AppState::Playing);
                         }
@@ -764,7 +787,11 @@ pub fn title_buttons(
                             } else {
                                 let entity = commands.spawn((
                                     AudioPlayer::new(sounds.bgm.clone()),
-                                    PlaybackSettings::LOOP,
+                                    PlaybackSettings {
+                                        mode: Loop,
+                                        volume: Volume::Linear(volume.bgm),
+                                        ..default()
+                                    },
                                 )).id();
                                 bgm_stats.playingbgm = Some(entity);
                                 **text = "BGM (ON)".to_string();
