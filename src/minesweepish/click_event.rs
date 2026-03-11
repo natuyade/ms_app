@@ -1,5 +1,5 @@
-use bevy::audio::PlaybackMode;
-use crate::minesweepish::ms_main::{AppState, Cell, CellSize, MapInfo, OpenState, SoundsLoader};
+use bevy::audio::{Volume, PlaybackMode::*};
+use crate::minesweepish::ms_main::{AppState, Cell, CellSize, MapInfo, OpenState, SoundsLoader, VolumeValue};
 use bevy::prelude::*;
 
 pub fn click_event(
@@ -11,6 +11,7 @@ pub fn click_event(
     mut next_state: ResMut<NextState<AppState>>,
     mut commands: Commands,
     sounds: Res<SoundsLoader>,
+    volume: Res<VolumeValue>,
 ) {
     if mouse.just_pressed(MouseButton::Left) || mouse.just_pressed(MouseButton::Right){
         let window = windows.single().unwrap();
@@ -41,7 +42,14 @@ pub fn click_event(
 
                     for (cell, state,_,_) in &mut cells {
                         if cell.cell_x == map_x && cell.cell_y == map_y && hint_num[map_y as usize][map_x as usize] != 9 && state.opened == false {
-                            commands.spawn((AudioPlayer::new(sounds.open_cell.clone()), PlaybackSettings::DESPAWN));
+                            commands.spawn((
+                                AudioPlayer::new(sounds.open_cell.clone()),
+                                PlaybackSettings {
+                                    mode: Despawn,
+                                    volume: Volume::Linear(volume.se),
+                                    ..default()
+                                },
+                            ));
                         }
                     }
 
@@ -55,7 +63,14 @@ pub fn click_event(
                                 if hint_num[pop_y as usize][pop_x as usize] != 0 {
                                     if state.opened == false && state.flag == false && state.question == false {
                                         if hint_num[pop_y as usize][pop_x as usize] == 9 {
-                                            commands.spawn((AudioPlayer(sounds.failed.clone()), PlaybackSettings::DESPAWN));
+                                            commands.spawn((
+                                                AudioPlayer(sounds.failed.clone()),
+                                                PlaybackSettings {
+                                                    mode: Despawn,
+                                                    volume: Volume::Linear(volume.se),
+                                                    ..default()
+                                                },
+                                            ));
                                             next_state.set(AppState::GameOver);
                                         }
                                         state.opened = true;

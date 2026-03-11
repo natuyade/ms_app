@@ -1,4 +1,3 @@
-use bevy::asset::AssetMetaCheck;
 use bevy::prelude::*;
 
 use crate::minesweepish::click_event::{check_remaining, click_event};
@@ -36,7 +35,7 @@ pub fn ms_main() {
             AssetPlugin {
                 file_path: "assets/".to_string(),
                 // wasmの場合先にmetaファイルを参照し本体ファイルを探すので必須
-                meta_check: AssetMetaCheck::Never,
+                meta_check: bevy::asset::AssetMetaCheck::Never,
             ..default()
             }
         ) */
@@ -55,7 +54,6 @@ pub fn ms_main() {
         .init_resource::<CellSize>()
         .init_resource::<SoundsLoader>()
         .init_resource::<BgmState>()
-        .init_resource::<DragState>()
         .add_systems(OnEnter(AppState::Title), setup_title)
         .add_systems(OnExit(AppState::Title), clean_title)
         .add_systems(OnEnter(AppState::Playing), setup_ms)

@@ -1,5 +1,4 @@
-use bevy::audio::{PlaybackMode, Volume};
-use bevy::audio::PlaybackMode::{Despawn, Loop};
+use bevy::audio::{Volume, PlaybackMode::*};
 use bevy::prelude::*;
 use bevy::ui::RelativeCursorPosition;
 use crate::minesweepish::ms_main::{BgmState, TitleButtonType, MapInfo, SettingButton, SettingType, SoundsLoader, TitleLayer, VolumeSetting, VolumeValue};
@@ -721,6 +720,7 @@ pub fn volume_slider(
     }
 }
 
+// change volume bgm
 pub fn volume_settings(
     volume: Res<VolumeValue>,
     bgm: Res<BgmState>,
@@ -773,7 +773,7 @@ pub fn title_buttons(
                                 AudioPlayer::new(sounds.start.clone()),
                                 PlaybackSettings {
                                     mode: Despawn,
-                                    volume: Volume::Linear(volume.bgm),
+                                    volume: Volume::Linear(volume.se),
                                     ..default()
                                 },
                             ));
@@ -827,6 +827,7 @@ pub fn title_buttons(
 pub fn map_setting(
     mut commands: Commands,
     sounds: Res<SoundsLoader>,
+    volume: Res<VolumeValue>,
     // Changedでinteraction処理がされたentityだけを指定でき,離されたintsも受け取れるため処理が毎フレーム行われない.
     mut buttons_query: Query<(&Interaction, &SettingType, &SettingButton, &mut BorderColor, &mut BackgroundColor, &mut Node), Changed<Interaction>>,
     mut text_query: Query<(&SettingType, &mut Text), (With<SettingType>, Without<SettingButton>)>,
@@ -836,26 +837,30 @@ pub fn map_setting(
         if *ints == Interaction::Pressed {
             commands.spawn((
                 AudioPlayer::new(sounds.setting.clone()),
-                PlaybackSettings::DESPAWN,
+                PlaybackSettings {
+                    mode: Despawn,
+                    volume: Volume::Linear(volume.se),
+                    ..default()
+                },
             ));
 
             use crate::minesweepish::ms_main::{SettingButton::*, SettingType::*};
 
             match (types, buttons) {
-                (Width, TenDown) => settings.map_width = (settings.map_width - 10).max(1).min(20),
-                (Width, OneDown) => settings.map_width = (settings.map_width - 1).max(1).min(20),
-                (Width, OneUp) => settings.map_width = (settings.map_width + 1).max(1).min(20),
-                (Width, TenUp) => settings.map_width = (settings.map_width + 10).max(1).min(20),
+                (Width, TenDown) => settings.map_width = (settings.map_width - 10).clamp(1, 99),
+                (Width, OneDown) => settings.map_width = (settings.map_width - 1).clamp(1, 99),
+                (Width, OneUp) => settings.map_width = (settings.map_width + 1).clamp(1, 99),
+                (Width, TenUp) => settings.map_width = (settings.map_width + 10).clamp(1, 99),
 
-                (Height, TenDown) => settings.map_height = (settings.map_height - 10).max(1).min(20),
-                (Height, OneDown) => settings.map_height = (settings.map_height - 1).max(1).min(20),
-                (Height, OneUp) => settings.map_height = (settings.map_height + 1).max(1).min(20),
-                (Height, TenUp) => settings.map_height = (settings.map_height + 10).max(1).min(20),
+                (Height, TenDown) => settings.map_height = (settings.map_height - 10).clamp(1, 99),
+                (Height, OneDown) => settings.map_height = (settings.map_height - 1).clamp(1, 99),
+                (Height, OneUp) => settings.map_height = (settings.map_height + 1).clamp(1, 99),
+                (Height, TenUp) => settings.map_height = (settings.map_height + 10).clamp(1, 99),
 
-                (BombPercent, TenDown) => settings.bomb_percent = (settings.bomb_percent - 10).max(1).min(99),
-                (BombPercent, OneDown) => settings.bomb_percent = (settings.bomb_percent - 1).max(1).min(99),
+                (BombPercent, TenDown) => settings.bomb_percent = (settings.bomb_percent - 10).clamp(1, 99),
+                (BombPercent, OneDown) => settings.bomb_percent = (settings.bomb_percent - 1).clamp(1, 99),
                 (BombPercent, OneUp) => settings.bomb_percent = (settings.bomb_percent + 1).clamp(1, 99),
-                (BombPercent, TenUp) => settings.bomb_percent = (settings.bomb_percent + 10).max(1).min(99),
+                (BombPercent, TenUp) => settings.bomb_percent = (settings.bomb_percent + 10).clamp(1, 99),
             }
 
             for (types, mut text) in &mut text_query {
