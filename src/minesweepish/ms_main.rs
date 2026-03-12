@@ -20,27 +20,35 @@ pub enum AppState {
 
 pub fn ms_main() {
     App::new()
-        .add_plugins(DefaultPlugins
-            /*.set(
-            WindowPlugin {
-                primary_window: Some(
-                    Window {
-                        canvas: Some("#minesweepish".to_string()),
-                        fit_canvas_to_parent: true,
-                        ..default()
-                    }
-                ),
+        .add_plugins(
+            DefaultPlugins
+            /*
+            .set(
+                WindowPlugin {
+                    primary_window: Some(
+                        Window {
+                            canvas: Some("#minesweepish".to_string()),
+                            fit_canvas_to_parent: true,
+                            ..default()
+                        }
+                    ),
+                    ..default()
+                }
+            )
+            .set(
+                // 今回はmetaファイルを用意していないためNeverにしている
+                AssetPlugin {
+                    file_path: "assets/".to_string(),
+                    // wasmの場合先にmetaファイルを参照し本体ファイルを探すので必須
+                    meta_check: bevy::asset::AssetMetaCheck::Never,
                 ..default()
-            }
-        ).set(
-            // 今回はmetaファイルを用意していないためNeverにしている
-            AssetPlugin {
-                file_path: "assets/".to_string(),
-                // wasmの場合先にmetaファイルを参照し本体ファイルを探すので必須
-                meta_check: bevy::asset::AssetMetaCheck::Never,
-            ..default()
-            }
-        ) */
+                }
+            )
+            */
+            .set(
+                // 低解像度画像ぼやけ防止
+                ImagePlugin::default_nearest()
+            )
         )
         .init_state::<AppState>()
         .insert_resource(ClearColor(Color::srgb(0.5, 0.5, 1.0)))
@@ -53,8 +61,10 @@ pub fn ms_main() {
         })
         .insert_resource(VolumeValue { bgm:0.2, se:0.2 })
         .init_resource::<CellSize>()
+        .init_resource::<FontLoader>()
         .init_resource::<SoundsLoader>()
         .init_resource::<ImageLoader>()
+        .init_resource::<AtlasLayout>()
         .init_resource::<BgmState>()
         .add_systems(OnEnter(AppState::Title), setup_title)
         .add_systems(OnExit(AppState::Title), clean_title)
@@ -175,6 +185,11 @@ fn setup_camera(mut commands: Commands, asset_server: Res<AssetServer>) {
 }
 
 #[derive(Resource, Default)]
+pub struct FontLoader {
+    pub uni_font: Handle<Font>
+}
+
+#[derive(Resource, Default)]
 pub struct SoundsLoader {
     pub bgm: Handle<AudioSource>,
     pub start: Handle<AudioSource>,
@@ -186,38 +201,70 @@ pub struct SoundsLoader {
 #[derive(Resource, Default)]
 pub struct ImageLoader {
     pub bgm: Handle<Image>,
-    pub bgm_hovered: Handle<Image>,
-    pub bgm_pushed: Handle<Image>,
-    pub bgm_muted: Handle<Image>,
-    pub bgm_muted_hovered: Handle<Image>,
-    pub bgm_muted_pushed: Handle<Image>,
-
     pub start: Handle<Image>,
-    pub start_hovered: Handle<Image>,
-    pub start_pushed: Handle<Image>,
+    pub setting: Handle<Image>,
+}
+
+#[derive(Resource, Default)]
+pub struct AtlasLayout {
+    pub bgm: Handle<TextureAtlasLayout>,
+    pub start: Handle<TextureAtlasLayout>,
+    pub setting: Handle<TextureAtlasLayout>,
 }
 
 fn load_assets(
+    mut font_loader: ResMut<FontLoader>,
     mut sounds_loader: ResMut<SoundsLoader>,
-    mut image_loader: ResMut<ImageLoader>,
+    mut images_loader: ResMut<ImageLoader>,
+    mut atlas_handler: ResMut<AtlasLayout>,
+    mut atlas_layout: ResMut<Assets<TextureAtlasLayout>>,
     asset_server: Res<AssetServer>,
 ) {
+    // font
+    font_loader.uni_font = asset_server.load("fonts/unifont-17.0.03.otf");
+
+    // sounds
     sounds_loader.bgm = asset_server.load("sounds/bgm.wav");
     sounds_loader.start = asset_server.load("sounds/start.wav");
     sounds_loader.setting = asset_server.load("sounds/setting_button.wav");
     sounds_loader.open_cell = asset_server.load("sounds/open_cell.wav");
     sounds_loader.failed = asset_server.load("sounds/failed.wav");
 
-    image_loader.bgm = asset_server.load("images/bgm_button.webp");
-    image_loader.bgm_hovered = asset_server.load("images/bgm_button_hovered.webp");
-    image_loader.bgm_pushed = asset_server.load("images/bgm_button_pushed.webp");
-    image_loader.bgm_muted = asset_server.load("images/bgm_muted_button.webp");
-    image_loader.bgm_muted_hovered = asset_server.load("images/bgm_muted_button_hovered.webp");
-    image_loader.bgm_muted_pushed = asset_server.load("images/bgm_muted_button_pushed.webp");
+    // images
+    images_loader.bgm = asset_server.load("images/bgm_button.webp");
+    images_loader.start = asset_server.load("images/start_button.webp");
+    images_loader.setting = asset_server.load("images/setting_button.webp");
 
-    image_loader.start = asset_server.load("images/start_button.webp");
-    image_loader.start_hovered = asset_server.load("images/start_button_hovered.webp");
-    image_loader.start_pushed = asset_server.load("images/start_button_pushed.webp");
+    // atlas settings
+    atlas_handler.bgm = atlas_layout.add(
+        TextureAtlasLayout::from_grid(
+            UVec2::new(32,32),
+            3,
+            2,
+            None,
+            None,
+        )
+    );
+
+    atlas_handler.start = atlas_layout.add(
+        TextureAtlasLayout::from_grid(
+            UVec2::new(120,32),
+            3,
+            1,
+            None,
+            None,
+        )
+    );
+
+    atlas_handler.setting = atlas_layout.add(
+        TextureAtlasLayout::from_grid(
+            UVec2::new(24,32),
+            4,
+            3,
+            None,
+            None,
+        )
+    );
 }
 
 #[derive(Component)]

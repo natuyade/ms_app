@@ -1,8 +1,11 @@
 use bevy::prelude::*;
 
-use crate::minesweepish::ms_main::{AppState, Cell, ClearLayer, MapInfo};
+use crate::minesweepish::ms_main::{AppState, Cell, ClearLayer, FontLoader, MapInfo};
 
-pub fn setup_gameclear( mut commands: Commands, asset_server: Res<AssetServer> ) {
+pub fn setup_gameclear(
+    mut commands: Commands,
+    font: Res<FontLoader>,
+) {
     commands.spawn((
         Node {
             position_type: PositionType::Relative,
@@ -22,7 +25,7 @@ pub fn setup_gameclear( mut commands: Commands, asset_server: Res<AssetServer> )
             },
             Text::new("GameClear!"),
             TextFont {
-                font: asset_server.load("fonts/unifont-17.0.03.otf"),
+                font: font.uni_font.clone(),
                 font_size: 64.0,
                 ..default()
             },
@@ -46,7 +49,7 @@ pub fn setup_gameclear( mut commands: Commands, asset_server: Res<AssetServer> )
             button.spawn((
                 Text::new("もういっかい"),
                 TextFont {
-                    font: asset_server.load("fonts/unifont-17.0.03.otf"),
+                    font: font.uni_font.clone(),
                     font_size: 48.0,
                     ..default()
                 },

@@ -1,14 +1,15 @@
 use bevy::audio::{Volume, PlaybackMode::*};
 use bevy::prelude::*;
 use bevy::ui::RelativeCursorPosition;
-use crate::minesweepish::ms_main::{BgmState, TitleButtonType, MapInfo, SettingButton, SettingType, SoundsLoader, TitleLayer, VolumeSetting, VolumeValue, ImageLoader};
+use crate::minesweepish::ms_main::{BgmState, TitleButtonType, MapInfo, SettingButton, SettingType, SoundsLoader, TitleLayer, VolumeSetting, VolumeValue, ImageLoader, FontLoader, AtlasLayout};
 
 pub fn setup_title(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
     mapinfo: Res<MapInfo>,
     volume: Res<VolumeValue>,
-    image: Res<ImageLoader>
+    font: Res<FontLoader>,
+    image: Res<ImageLoader>,
+    atlas_layout: Res<AtlasLayout>,
 ) {
 
     commands
@@ -39,7 +40,7 @@ pub fn setup_title(
                 },
                 Text::new("MineSweepish"),
                 TextFont {
-                    font: asset_server.load("fonts/unifont-17.0.03.otf"),
+                    font: font.uni_font.clone(),
                     font_size: 64.0,
                     ..default()
                 },
@@ -61,12 +62,12 @@ pub fn setup_title(
                     },
                     Button,
                     TitleButtonType::StartButton,
-                    children![(
-                    ImageNode {
-                        image: image.start.clone(),
-                        ..default()
-                    },
-                    )],
+                    children![
+                    ImageNode::from_atlas_image(
+                        image.start.clone(),
+                        TextureAtlas::from(atlas_layout.start.clone()),
+                    ),
+                    ],
                 ));
 
             // setting buttons
@@ -118,7 +119,7 @@ pub fn setup_title(
                             Text::new("Cell\nWidthSize"),
                             TextLayout::new_with_justify(Justify::Center),
                             TextFont {
-                                font: asset_server.load("fonts/unifont-17.0.03.otf"),
+                                font: font.uni_font.clone(),
                                 font_size: 16.0,
                                 ..default()
                             },
@@ -143,7 +144,7 @@ pub fn setup_title(
                             button.spawn((
                                 Text::new(map_width.to_string()),
                                 TextFont {
-                                    font: asset_server.load("fonts/unifont-17.0.03.otf"),
+                                    font: font.uni_font.clone(),
                                     font_size: 24.0,
                                     ..default()
                                 },
@@ -172,7 +173,7 @@ pub fn setup_title(
                                 children![(
                             Text::new("-10"),
                             TextFont {
-                                font: asset_server.load("fonts/unifont-17.0.03.otf"),
+                                font: font.uni_font.clone(),
                                 font_size: 16.0,
                                 ..default()
                             },
@@ -196,7 +197,7 @@ pub fn setup_title(
                                 children![(
                             Text::new("-1"),
                             TextFont {
-                                font: asset_server.load("fonts/unifont-17.0.03.otf"),
+                                font: font.uni_font.clone(),
                                 font_size: 16.0,
                                 ..default()
                             },
@@ -220,7 +221,7 @@ pub fn setup_title(
                                 children![(
                             Text::new("+1"),
                             TextFont {
-                                font: asset_server.load("fonts/unifont-17.0.03.otf"),
+                                font: font.uni_font.clone(),
                                 font_size: 16.0,
                                 ..default()
                             },
@@ -244,7 +245,7 @@ pub fn setup_title(
                                 children![(
                             Text::new("+10"),
                             TextFont {
-                                font: asset_server.load("fonts/unifont-17.0.03.otf"),
+                                font: font.uni_font.clone(),
                                 font_size: 16.0,
                                 ..default()
                             },
@@ -286,7 +287,7 @@ pub fn setup_title(
                             Text::new("Cell\nHeightSize"),
                             TextLayout::new_with_justify(Justify::Center),
                             TextFont {
-                                font: asset_server.load("fonts/unifont-17.0.03.otf"),
+                                font: font.uni_font.clone(),
                                 font_size: 16.0,
                                 ..default()
                             },
@@ -311,7 +312,7 @@ pub fn setup_title(
                             button.spawn((
                                 Text::new(map_height.to_string()),
                                 TextFont {
-                                    font: asset_server.load("fonts/unifont-17.0.03.otf"),
+                                    font: font.uni_font.clone(),
                                     font_size: 24.0,
                                     ..default()
                                 },
@@ -340,7 +341,7 @@ pub fn setup_title(
                                 children![(
                             Text::new("-10"),
                             TextFont {
-                                font: asset_server.load("fonts/unifont-17.0.03.otf"),
+                                font: font.uni_font.clone(),
                                 font_size: 16.0,
                                 ..default()
                             },
@@ -364,7 +365,7 @@ pub fn setup_title(
                                 children![(
                             Text::new("-1"),
                             TextFont {
-                                font: asset_server.load("fonts/unifont-17.0.03.otf"),
+                                font: font.uni_font.clone(),
                                 font_size: 16.0,
                                 ..default()
                             },
@@ -388,7 +389,7 @@ pub fn setup_title(
                                 children![(
                             Text::new("+1"),
                             TextFont {
-                                font: asset_server.load("fonts/unifont-17.0.03.otf"),
+                                font: font.uni_font.clone(),
                                 font_size: 16.0,
                                 ..default()
                             },
@@ -412,7 +413,7 @@ pub fn setup_title(
                                 children![(
                             Text::new("+10"),
                             TextFont {
-                                font: asset_server.load("fonts/unifont-17.0.03.otf"),
+                                font: font.uni_font.clone(),
                                 font_size: 16.0,
                                 ..default()
                             },
@@ -451,7 +452,7 @@ pub fn setup_title(
                             Text::new("Bomb\nPercent"),
                             TextLayout::new_with_justify(Justify::Center),
                             TextFont {
-                                font: asset_server.load("fonts/unifont-17.0.03.otf"),
+                                font: font.uni_font.clone(),
                                 font_size: 16.0,
                                 ..default()
                             },
@@ -477,7 +478,7 @@ pub fn setup_title(
                             button.spawn((
                                 Text::new(bomb_per.to_string()),
                                 TextFont {
-                                    font: asset_server.load("fonts/unifont-17.0.03.otf"),
+                                    font: font.uni_font.clone(),
                                     font_size: 24.0,
                                     ..default()
                                 },
@@ -506,7 +507,7 @@ pub fn setup_title(
                                 children![(
                             Text::new("-10"),
                             TextFont {
-                                font: asset_server.load("fonts/unifont-17.0.03.otf"),
+                                font: font.uni_font.clone(),
                                 font_size: 16.0,
                                 ..default()
                             },
@@ -530,7 +531,7 @@ pub fn setup_title(
                                 children![(
                             Text::new("-1"),
                             TextFont {
-                                font: asset_server.load("fonts/unifont-17.0.03.otf"),
+                                font: font.uni_font.clone(),
                                 font_size: 16.0,
                                 ..default()
                             },
@@ -554,7 +555,7 @@ pub fn setup_title(
                                 children![(
                             Text::new("+1"),
                             TextFont {
-                                font: asset_server.load("fonts/unifont-17.0.03.otf"),
+                                font: font.uni_font.clone(),
                                 font_size: 16.0,
                                 ..default()
                             },
@@ -578,7 +579,7 @@ pub fn setup_title(
                                 children![(
                             Text::new("+10"),
                             TextFont {
-                                font: asset_server.load("fonts/unifont-17.0.03.otf"),
+                                font: font.uni_font.clone(),
                                 font_size: 16.0,
                                 ..default()
                             },
@@ -601,12 +602,12 @@ pub fn setup_title(
                 },
                 Button,
                 TitleButtonType::BgmToggleButton,
-                children![(
-                    ImageNode {
-                        image: image.bgm_muted.clone(),
-                        ..default()
-                    },
-                )],
+                children![
+                    ImageNode::from_atlas_image(
+                        image.bgm.clone(),
+                        TextureAtlas::from(atlas_layout.bgm.clone()),
+                    ),
+                ],
             ));
 
             // sounds settings
@@ -625,7 +626,7 @@ pub fn setup_title(
                 VolumeSetting::BGM,
                 Text::new("BGM"),
                 TextFont {
-                    font: asset_server.load("fonts/unifont-17.0.03.otf"),
+                    font: font.uni_font.clone(),
                     font_size: 24.,
                     ..default()
                 },
@@ -642,7 +643,7 @@ pub fn setup_title(
             BackgroundColor (Color::srgb(0.,1.,0.)),
             Text::new("BGM"),
             TextFont {
-                font: asset_server.load("fonts/unifont-17.0.03.otf"),
+                font: font.uni_font.clone(),
                 font_size: 24.,
                 ..default()
             },
@@ -669,7 +670,7 @@ pub fn setup_title(
                 VolumeSetting::SE,
                 Text::new("SE"),
                 TextFont {
-                    font: asset_server.load("fonts/unifont-17.0.03.otf"),
+                    font: font.uni_font.clone(),
                     font_size: 24.,
                     ..default()
                 },
@@ -686,7 +687,7 @@ pub fn setup_title(
             BackgroundColor (Color::srgb(0.,1.,1.)),
             Text::new("SE"),
             TextFont {
-                font: asset_server.load("fonts/unifont-17.0.03.otf"),
+                font: font.uni_font.clone(),
                 font_size: 24.,
                 ..default()
             },
@@ -749,7 +750,6 @@ pub fn volume_settings(
 pub fn title_buttons(
     mut commands: Commands,
     sounds: Res<SoundsLoader>,
-    images: Res<ImageLoader>,
     volume: Res<VolumeValue>,
     mut bgm_stats: ResMut<BgmState>,
     mut ints_query: Query<(&Interaction, &TitleButtonType, &Children), (With<Button>, Without<SettingButton>, Changed<Interaction>)>,
@@ -758,68 +758,71 @@ pub fn title_buttons(
 ) {
     for (ints, title_buttons, children) in &mut ints_query {
         if let Ok(mut image) = image_query.get_mut(children[0]) {
-            match title_buttons {
-                // start button
-                TitleButtonType::StartButton => {
-                    match *ints {
-                        Interaction::Hovered => {
-                            *image = ImageNode::new(images.start_hovered.clone());
-                        },
-                        Interaction::Pressed => {
-                            *image = ImageNode::new(images.start_pushed.clone());
-                            commands.spawn((
-                                AudioPlayer::new(sounds.start.clone()),
-                                PlaybackSettings {
-                                    mode: Despawn,
-                                    volume: Volume::Linear(volume.se),
-                                    ..default()
-                                },
-                            ));
-                            next_state.set(AppState::Playing);
-                        },
-                        Interaction::None => {
-                            *image = ImageNode::new(images.start.clone());
-                        },
-                    }
-                }
-                // bgm button
-                TitleButtonType::BgmToggleButton => {
-                    match *ints {
-                        Interaction::Hovered => {
-                            if bgm_stats.playingbgm.is_some() {
-                                *image = ImageNode::new(images.bgm_hovered.clone());
-                            } else {
-                                *image = ImageNode::new(images.bgm_muted_hovered.clone());
-                            }
-                        },
-                        Interaction::Pressed => {
-                            if let Some(entity) = bgm_stats.playingbgm {
-                                *image = ImageNode::new(images.bgm_muted_pushed.clone());
-                                commands.entity(entity).despawn();
-                                bgm_stats.playingbgm = None;
-                            } else {
-                                *image = ImageNode::new(images.bgm_pushed.clone());
-                                let entity = commands.spawn((
-                                    AudioPlayer::new(sounds.bgm.clone()),
+
+            if let Some(atlas) = &mut image.texture_atlas {
+                match title_buttons {
+                    // start button [index = 0~2]
+                    TitleButtonType::StartButton => {
+                        match *ints {
+                            Interaction::Hovered => {
+                                atlas.index = 1;
+                            },
+                            Interaction::Pressed => {
+                                atlas.index = 2;
+                                commands.spawn((
+                                    AudioPlayer::new(sounds.start.clone()),
                                     PlaybackSettings {
-                                        mode: Loop,
-                                        volume: Volume::Linear(volume.bgm),
+                                        mode: Despawn,
+                                        volume: Volume::Linear(volume.se),
                                         ..default()
                                     },
-                                )).id();
-                                bgm_stats.playingbgm = Some(entity);
-                            }
-                        },
-                        Interaction::None => {
-                            if bgm_stats.playingbgm.is_some() {
-                                *image = ImageNode::new(images.bgm.clone());
-                            } else {
-                                *image = ImageNode::new(images.bgm_muted.clone());
-                            }
-                        },
+                                ));
+                                next_state.set(AppState::Playing);
+                            },
+                            Interaction::None => {
+                                atlas.index = 0;
+                            },
+                        }
+                    }
+                    // bgm button [index = normal:0~2, muted:3~5]
+                    TitleButtonType::BgmToggleButton => {
+                        match *ints {
+                            Interaction::Hovered => {
+                                if bgm_stats.playingbgm.is_some() {
+                                    atlas.index = 1;
+                                } else {
+                                    atlas.index = 4;
+                                }
+                            },
+                            Interaction::Pressed => {
+                                if let Some(entity) = bgm_stats.playingbgm {
+                                    atlas.index = 5;
+                                    commands.entity(entity).despawn();
+                                    bgm_stats.playingbgm = None;
+                                } else {
+                                    atlas.index = 2;
+                                    let entity = commands.spawn((
+                                        AudioPlayer::new(sounds.bgm.clone()),
+                                        PlaybackSettings {
+                                            mode: Loop,
+                                            volume: Volume::Linear(volume.bgm),
+                                            ..default()
+                                        },
+                                    )).id();
+                                    bgm_stats.playingbgm = Some(entity);
+                                }
+                            },
+                            Interaction::None => {
+                                if bgm_stats.playingbgm.is_some() {
+                                    atlas.index = 0;
+                                } else {
+                                    atlas.index = 3;
+                                }
+                            },
+                        }
                     }
                 }
-            }
+            };
         }
     }
 }

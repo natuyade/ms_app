@@ -1,8 +1,11 @@
 use bevy::prelude::*;
 
-use crate::minesweepish::ms_main::{AppState, Cell, FailedLayer};
+use crate::minesweepish::ms_main::{AppState, Cell, FailedLayer, FontLoader};
 
-pub fn setup_gameover( mut commands: Commands, asset_server: Res<AssetServer> ) {
+pub fn setup_gameover(
+    mut commands: Commands,
+    font: Res<FontLoader>,
+) {
     commands.spawn((
         Node {
             position_type: PositionType::Relative,
@@ -28,7 +31,7 @@ pub fn setup_gameover( mut commands: Commands, asset_server: Res<AssetServer> ) 
             },
             Text::new("GAME OVER"),
             TextFont {
-                font: asset_server.load("fonts/unifont-17.0.03.otf"),
+                font: font.uni_font.clone(),
                 font_size: 64.0,
                 ..default()
             },
@@ -52,7 +55,7 @@ pub fn setup_gameover( mut commands: Commands, asset_server: Res<AssetServer> ) 
             button.spawn((
                 Text::new("タイトルに戻る"),
                 TextFont {
-                    font: asset_server.load("fonts/unifont-17.0.03.otf"),
+                    font: font.uni_font.clone(),
                     font_size: 48.0,
                     ..default()
                 },

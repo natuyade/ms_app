@@ -1,4 +1,4 @@
-use crate::minesweepish::ms_main::{Cell, CellSize, MapInfo, OpenState};
+use crate::minesweepish::ms_main::{Cell, CellSize, FontLoader, MapInfo, OpenState};
 use bevy::prelude::*;
 
 use crate::minesweepish::ms_main::GameLayer;
@@ -6,7 +6,7 @@ pub fn setup_ms(
     mut mapinfo: ResMut<MapInfo>,
     mut cellsize: ResMut<CellSize>,
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
+    font: Res<FontLoader>,
 ) {
     let size_x = mapinfo.map_width;
     let size_y = mapinfo.map_height;
@@ -25,7 +25,7 @@ pub fn setup_ms(
             commands.spawn((
                 Text2d::new("⬛"),
                 TextFont {
-                    font: asset_server.load("fonts/unifont-17.0.03.otf"),
+                    font: font.uni_font.clone(),
                     font_size: cell_size as f32,
                     ..default()
                 },
