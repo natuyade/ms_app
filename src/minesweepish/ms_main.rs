@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 
+use crate::minesweepish::setup::enter_title;
 use crate::minesweepish::click_event::{check_remaining, click_event};
 use crate::minesweepish::gameclear::{clean_gameclear, setup_gameclear, back_to_title_button};
 use crate::minesweepish::gameover::{back_button, clean_gameover, setup_gameover};
@@ -10,6 +11,7 @@ use crate::minesweepish::title_bg::title_rotate;
 #[derive(States, Debug, Clone, PartialEq, Eq, Hash, Default)]
 pub enum AppState {
     #[default]
+    Setup,
     Title,
     Playing,
     GameOver,
@@ -41,7 +43,6 @@ pub fn ms_main() {
         ) */
         )
         .init_state::<AppState>()
-        .add_systems(Startup, (setup_camera, setup_audio))
         .insert_resource(ClearColor(Color::srgb(0.5, 0.5, 1.0)))
         .insert_resource(MapInfo {
             map_width: 10,
@@ -53,6 +54,7 @@ pub fn ms_main() {
         .insert_resource(VolumeValue { bgm:0.2, se:0.2 })
         .init_resource::<CellSize>()
         .init_resource::<SoundsLoader>()
+        .init_resource::<ImageLoader>()
         .init_resource::<BgmState>()
         .add_systems(OnEnter(AppState::Title), setup_title)
         .add_systems(OnExit(AppState::Title), clean_title)
@@ -61,12 +63,13 @@ pub fn ms_main() {
         .add_systems(OnExit(AppState::GameOver), (clean_ms, clean_gameover))
         .add_systems(OnEnter(AppState::GameClear), setup_gameclear)
         .add_systems(OnExit(AppState::GameClear), (clean_ms, clean_gameclear))
+        .add_systems(Startup, (setup_camera, load_assets, enter_title).chain())
         .add_systems(
             Update,
             (
                 title_rotate,
                 volume_slider.run_if(in_state(AppState::Title)),
-                volume_settings.run_if(in_state(AppState::Title)),
+                volume_settings.after(volume_slider).run_if(in_state(AppState::Title)),
                 title_buttons.run_if(in_state(AppState::Title)),
                 map_setting.run_if(in_state(AppState::Title)),
                 click_event.run_if(in_state(AppState::Playing)),
@@ -180,12 +183,41 @@ pub struct SoundsLoader {
     pub failed: Handle<AudioSource>,
 }
 
-fn setup_audio( mut sounds_loader: ResMut<SoundsLoader>, asset_server: Res<AssetServer> ) {
+#[derive(Resource, Default)]
+pub struct ImageLoader {
+    pub bgm: Handle<Image>,
+    pub bgm_hovered: Handle<Image>,
+    pub bgm_pushed: Handle<Image>,
+    pub bgm_muted: Handle<Image>,
+    pub bgm_muted_hovered: Handle<Image>,
+    pub bgm_muted_pushed: Handle<Image>,
+
+    pub start: Handle<Image>,
+    pub start_hovered: Handle<Image>,
+    pub start_pushed: Handle<Image>,
+}
+
+fn load_assets(
+    mut sounds_loader: ResMut<SoundsLoader>,
+    mut image_loader: ResMut<ImageLoader>,
+    asset_server: Res<AssetServer>,
+) {
     sounds_loader.bgm = asset_server.load("sounds/bgm.wav");
     sounds_loader.start = asset_server.load("sounds/start.wav");
     sounds_loader.setting = asset_server.load("sounds/setting_button.wav");
     sounds_loader.open_cell = asset_server.load("sounds/open_cell.wav");
     sounds_loader.failed = asset_server.load("sounds/failed.wav");
+
+    image_loader.bgm = asset_server.load("images/bgm_button.webp");
+    image_loader.bgm_hovered = asset_server.load("images/bgm_button_hovered.webp");
+    image_loader.bgm_pushed = asset_server.load("images/bgm_button_pushed.webp");
+    image_loader.bgm_muted = asset_server.load("images/bgm_muted_button.webp");
+    image_loader.bgm_muted_hovered = asset_server.load("images/bgm_muted_button_hovered.webp");
+    image_loader.bgm_muted_pushed = asset_server.load("images/bgm_muted_button_pushed.webp");
+
+    image_loader.start = asset_server.load("images/start_button.webp");
+    image_loader.start_hovered = asset_server.load("images/start_button_hovered.webp");
+    image_loader.start_pushed = asset_server.load("images/start_button_pushed.webp");
 }
 
 #[derive(Component)]

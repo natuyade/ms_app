@@ -1,13 +1,14 @@
 use bevy::audio::{Volume, PlaybackMode::*};
 use bevy::prelude::*;
 use bevy::ui::RelativeCursorPosition;
-use crate::minesweepish::ms_main::{BgmState, TitleButtonType, MapInfo, SettingButton, SettingType, SoundsLoader, TitleLayer, VolumeSetting, VolumeValue};
+use crate::minesweepish::ms_main::{BgmState, TitleButtonType, MapInfo, SettingButton, SettingType, SoundsLoader, TitleLayer, VolumeSetting, VolumeValue, ImageLoader};
 
 pub fn setup_title(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mapinfo: Res<MapInfo>,
-    volume: Res<VolumeValue,>
+    volume: Res<VolumeValue>,
+    image: Res<ImageLoader>
 ) {
 
     commands
@@ -53,9 +54,6 @@ pub fn setup_title(
                 .spawn((
                     Node {
                         position_type: PositionType::Absolute,
-                        display: Display::Flex,
-                        justify_content: JustifyContent::Center,
-                        align_items: AlignItems::Center,
                         top: Val::Percent(70.0),
                         width: Val::Px(240.0),
                         height: Val::Px(64.0),
@@ -63,19 +61,11 @@ pub fn setup_title(
                     },
                     Button,
                     TitleButtonType::StartButton,
-                    BackgroundColor(Color::srgb(0.0, 0.4, 0.4)),
                     children![(
-                        Text::new("スタート"),
-                        TextFont {
-                            font: asset_server.load("fonts/unifont-17.0.03.otf"),
-                            font_size: 48.0,
-                            ..default()
-                        },
-                        TextColor(Color::srgb(1.0, 0.0, 1.0)),
-                        TextShadow {
-                            offset: Vec2::new(0.0,2.0),
-                            color: Color::BLACK,
-                        },
+                    ImageNode {
+                        image: image.start.clone(),
+                        ..default()
+                    },
                     )],
                 ));
 
@@ -598,51 +588,49 @@ pub fn setup_title(
 
                 });
             });
-        });
 
-    // bgm toggle button
-    commands.spawn((
-        Node {
-            position_type: PositionType::Relative,
-            top: Val::Px(0.),
-            left: Val::Px(0.),
-            width: Val::Px(256.),
-            height: Val::Px(64.),
-            ..default()
-        },
-        Button,
-        TitleButtonType::BgmToggleButton,
-        BackgroundColor(Color::srgb(0.,1.,0.)),
-        children![(
-            Text::new("BGM (OFF)"),
-            TextFont {
-                font: asset_server.load("fonts/unifont-17.0.03.otf"),
-                font_size: 48.0,
-                ..default()
-            },
-            TextColor(Color::srgb(1.0, 0.0, 1.0)),
-            TextShadow {
-                offset: Vec2::new(2.0, 2.0),
-                color: Color::srgb(1.0, 0.0, 1.0),
-            }
-        )],
-        ));
+            // bgm toggle button
+            parent.spawn((
+                Node {
+                    position_type: PositionType::Absolute,
+                    top: Val::Px(8.),
+                    left: Val::Px(8.),
+                    width: Val::Px(64.),
+                    height: Val::Px(64.),
+                    ..default()
+                },
+                Button,
+                TitleButtonType::BgmToggleButton,
+                children![(
+                    ImageNode {
+                        image: image.bgm_muted.clone(),
+                        ..default()
+                    },
+                )],
+            ));
 
-    // sounds settings
-    commands.spawn((
-        Node {
-            position_type: PositionType::Relative,
-            top: Val::Px(432.),
-            left: Val::Px(8.),
-            width: Val::Px(128.),
-            height: Val::Px(32.),
-            ..default()
-        },
-        BackgroundColor (Color::srgb(0.,1.,1.)),
-        RelativeCursorPosition::default(),
-        Button,
-        VolumeSetting::BGM,
-        children![(
+            // sounds settings
+            parent.spawn((
+                Node {
+                    position_type: PositionType::Absolute,
+                    top: Val::Px(432.),
+                    left: Val::Px(8.),
+                    width: Val::Px(128.),
+                    height: Val::Px(32.),
+                    ..default()
+                },
+                BackgroundColor (Color::srgb(0.,0.,0.)),
+                RelativeCursorPosition::default(),
+                Button,
+                VolumeSetting::BGM,
+                Text::new("BGM"),
+                TextFont {
+                    font: asset_server.load("fonts/unifont-17.0.03.otf"),
+                    font_size: 24.,
+                    ..default()
+                },
+                TextColor(Color::srgb(1.,1.,0.)),
+                children![(
             Node {
                 width: Val::Percent(volume.bgm * 100.),
                 height: Val::Percent(100.0),
@@ -652,23 +640,41 @@ pub fn setup_title(
                 ..default()
             },
             BackgroundColor (Color::srgb(0.,1.,0.)),
+            Text::new("BGM"),
+            TextFont {
+                font: asset_server.load("fonts/unifont-17.0.03.otf"),
+                font_size: 24.,
+                ..default()
+            },
+            TextColor(Color::srgb(1.,0.,1.)),
+            TextShadow {
+                offset: Vec2::new(1.,1.),
+                color: Color::BLACK,
+            },
         )],
-        ));
+            ));
 
-    commands.spawn((
-        Node {
-            position_type: PositionType::Relative,
-            top: Val::Px(480.),
-            left: Val::Px(8.),
-            width: Val::Px(128.),
-            height: Val::Px(32.),
-            ..default()
-        },
-        BackgroundColor (Color::srgb(0.,1.,1.)),
-        RelativeCursorPosition::default(),
-        Button,
-        VolumeSetting::SE,
-        children![(
+            parent.spawn((
+                Node {
+                    position_type: PositionType::Absolute,
+                    top: Val::Px(480.),
+                    left: Val::Px(8.),
+                    width: Val::Px(128.),
+                    height: Val::Px(32.),
+                    ..default()
+                },
+                BackgroundColor (Color::srgb(0.,0.,0.)),
+                RelativeCursorPosition::default(),
+                Button,
+                VolumeSetting::SE,
+                Text::new("SE"),
+                TextFont {
+                    font: asset_server.load("fonts/unifont-17.0.03.otf"),
+                    font_size: 24.,
+                    ..default()
+                },
+                TextColor(Color::srgb(1.,1.,0.)),
+                children![(
             Node {
                 width: Val::Percent(volume.se * 100.),
                 height: Val::Percent(100.0),
@@ -677,14 +683,21 @@ pub fn setup_title(
                 overflow: Overflow::clip(),
                 ..default()
             },
-            BackgroundColor (Color::srgb(1.,1.,1.)),
+            BackgroundColor (Color::srgb(0.,1.,1.)),
+            Text::new("SE"),
+            TextFont {
+                font: asset_server.load("fonts/unifont-17.0.03.otf"),
+                font_size: 24.,
+                ..default()
+            },
+            TextColor(Color::srgb(1.,0.,1.)),
+            TextShadow {
+                offset: Vec2::new(1.,1.),
+                color: Color::BLACK,
+            },
         )],
-    ));
-/*
-bgmの再生
-最初のボリューム調整
-タイトルにbgmとseのボリューム設定を追加する
-*/
+            ));
+        });
 }
 
 use crate::minesweepish::ms_main::AppState;
@@ -736,39 +749,24 @@ pub fn volume_settings(
 pub fn title_buttons(
     mut commands: Commands,
     sounds: Res<SoundsLoader>,
+    images: Res<ImageLoader>,
     volume: Res<VolumeValue>,
     mut bgm_stats: ResMut<BgmState>,
-    mut ints_query: Query<(&Interaction, &TitleButtonType, &Children, &mut BackgroundColor), (With<Button>, Without<SettingButton>, Changed<Interaction>)>,
-    mut text_query: Query<(&mut TextShadow, &mut Text)>,
+    mut ints_query: Query<(&Interaction, &TitleButtonType, &Children), (With<Button>, Without<SettingButton>, Changed<Interaction>)>,
+    mut image_query: Query<&mut ImageNode>,
     mut next_state: ResMut<NextState<AppState>>,
 ) {
-    for (ints, title_buttons, children, mut bgcolor) in &mut ints_query {
-
-        if let Ok((mut shadow, mut text)) = text_query.get_mut(children[0]) {
-            match *ints {
-                Interaction::Hovered => {
-                    match title_buttons {
-                        TitleButtonType::StartButton => {
-                            *bgcolor = BackgroundColor(Color::srgb(0.0, 0.6, 0.6));
-                            shadow.offset = Vec2::new(0.0,0.0);
-                            shadow.color = Color::NONE;
-                        }
-                        TitleButtonType::BgmToggleButton => {
-                            if bgm_stats.playingbgm.is_some() {
-                                *bgcolor = BackgroundColor(Color::srgb(0.,1.,0.));
-                                shadow.offset = Vec2::new(0.0,0.0);
-                                shadow.color = Color::NONE;
-                            } else {
-                                *bgcolor = BackgroundColor(Color::srgb(0.,0.,1.));
-                                shadow.offset = Vec2::new(0.0,0.0);
-                                shadow.color = Color::NONE;
-                            }
-                        }
-                    }
-                },
-                Interaction::Pressed => {
-                    match title_buttons {
-                        TitleButtonType::StartButton => {
+    for (ints, title_buttons, children) in &mut ints_query {
+        if let Ok(mut image) = image_query.get_mut(children[0]) {
+            match title_buttons {
+                // start button
+                TitleButtonType::StartButton => {
+                    match *ints {
+                        Interaction::Hovered => {
+                            *image = ImageNode::new(images.start_hovered.clone());
+                        },
+                        Interaction::Pressed => {
+                            *image = ImageNode::new(images.start_pushed.clone());
                             commands.spawn((
                                 AudioPlayer::new(sounds.start.clone()),
                                 PlaybackSettings {
@@ -778,13 +776,29 @@ pub fn title_buttons(
                                 },
                             ));
                             next_state.set(AppState::Playing);
-                        }
-                        TitleButtonType::BgmToggleButton => {
+                        },
+                        Interaction::None => {
+                            *image = ImageNode::new(images.start.clone());
+                        },
+                    }
+                }
+                // bgm button
+                TitleButtonType::BgmToggleButton => {
+                    match *ints {
+                        Interaction::Hovered => {
+                            if bgm_stats.playingbgm.is_some() {
+                                *image = ImageNode::new(images.bgm_hovered.clone());
+                            } else {
+                                *image = ImageNode::new(images.bgm_muted_hovered.clone());
+                            }
+                        },
+                        Interaction::Pressed => {
                             if let Some(entity) = bgm_stats.playingbgm {
+                                *image = ImageNode::new(images.bgm_muted_pushed.clone());
                                 commands.entity(entity).despawn();
                                 bgm_stats.playingbgm = None;
-                                **text = "BGM (OFF)".to_string();
                             } else {
+                                *image = ImageNode::new(images.bgm_pushed.clone());
                                 let entity = commands.spawn((
                                     AudioPlayer::new(sounds.bgm.clone()),
                                     PlaybackSettings {
@@ -794,31 +808,17 @@ pub fn title_buttons(
                                     },
                                 )).id();
                                 bgm_stats.playingbgm = Some(entity);
-                                **text = "BGM (ON)".to_string();
                             }
-                        }
-                    }
-                },
-                Interaction::None => {
-                    match title_buttons {
-                        TitleButtonType::StartButton => {
-                            *bgcolor = BackgroundColor(Color::srgb(0.0, 0.4, 0.4));
-                            shadow.offset = Vec2::new(0.0,2.0);
-                            shadow.color = Color::BLACK;
-                        }
-                        TitleButtonType::BgmToggleButton => {
+                        },
+                        Interaction::None => {
                             if bgm_stats.playingbgm.is_some() {
-                                    *bgcolor = BackgroundColor(Color::srgb(0.8,0.8,0.8));
-                                    shadow.offset = Vec2::new(0.0,2.0);
-                                    shadow.color = Color::BLACK;
+                                *image = ImageNode::new(images.bgm.clone());
                             } else {
-                                    *bgcolor = BackgroundColor(Color::srgb(1.,1.,1.));
-                                    shadow.offset = Vec2::new(0.0,2.0);
-                                    shadow.color = Color::BLACK;
+                                *image = ImageNode::new(images.bgm_muted.clone());
                             }
-                        }
+                        },
                     }
-                },
+                }
             }
         }
     }
@@ -847,15 +847,15 @@ pub fn map_setting(
             use crate::minesweepish::ms_main::{SettingButton::*, SettingType::*};
 
             match (types, buttons) {
-                (Width, TenDown) => settings.map_width = (settings.map_width - 10).clamp(1, 99),
-                (Width, OneDown) => settings.map_width = (settings.map_width - 1).clamp(1, 99),
-                (Width, OneUp) => settings.map_width = (settings.map_width + 1).clamp(1, 99),
-                (Width, TenUp) => settings.map_width = (settings.map_width + 10).clamp(1, 99),
+                (Width, TenDown) => settings.map_width = (settings.map_width - 10).clamp(1, 20),
+                (Width, OneDown) => settings.map_width = (settings.map_width - 1).clamp(1, 20),
+                (Width, OneUp) => settings.map_width = (settings.map_width + 1).clamp(1, 20),
+                (Width, TenUp) => settings.map_width = (settings.map_width + 10).clamp(1, 20),
 
-                (Height, TenDown) => settings.map_height = (settings.map_height - 10).clamp(1, 99),
-                (Height, OneDown) => settings.map_height = (settings.map_height - 1).clamp(1, 99),
-                (Height, OneUp) => settings.map_height = (settings.map_height + 1).clamp(1, 99),
-                (Height, TenUp) => settings.map_height = (settings.map_height + 10).clamp(1, 99),
+                (Height, TenDown) => settings.map_height = (settings.map_height - 10).clamp(1, 20),
+                (Height, OneDown) => settings.map_height = (settings.map_height - 1).clamp(1, 20),
+                (Height, OneUp) => settings.map_height = (settings.map_height + 1).clamp(1, 20),
+                (Height, TenUp) => settings.map_height = (settings.map_height + 10).clamp(1, 20),
 
                 (BombPercent, TenDown) => settings.bomb_percent = (settings.bomb_percent - 10).clamp(1, 99),
                 (BombPercent, OneDown) => settings.bomb_percent = (settings.bomb_percent - 1).clamp(1, 99),
