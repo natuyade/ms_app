@@ -63,14 +63,6 @@ pub fn click_event(
                                 if hint_num[pop_y as usize][pop_x as usize] != 0 {
                                     if state.opened == false && state.flag == false && state.question == false {
                                         if hint_num[pop_y as usize][pop_x as usize] == 9 {
-                                            commands.spawn((
-                                                AudioPlayer(sounds.failed.clone()),
-                                                PlaybackSettings {
-                                                    mode: Despawn,
-                                                    volume: Volume::Linear(volume.se),
-                                                    ..default()
-                                                },
-                                            ));
                                             next_state.set(AppState::GameOver);
                                         }
                                         state.opened = true;

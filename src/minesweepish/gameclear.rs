@@ -1,11 +1,24 @@
+use bevy::audio::PlaybackMode::Despawn;
+use bevy::audio::Volume;
 use bevy::prelude::*;
 
-use crate::minesweepish::ms_main::{AppState, Cell, ClearLayer, FontLoader, MapInfo};
+use crate::minesweepish::ms_main::{AppState, Cell, ClearLayer, FontLoader, MapInfo, SoundsLoader, VolumeValue};
 
 pub fn setup_gameclear(
     mut commands: Commands,
     font: Res<FontLoader>,
+    volume: Res<VolumeValue>,
+    sounds: Res<SoundsLoader>,
 ) {
+    commands.spawn((
+        AudioPlayer(sounds.clear.clone()),
+        PlaybackSettings {
+            mode: Despawn,
+            volume: Volume::Linear(volume.se),
+            ..default()
+        },
+    ));
+    
     commands.spawn((
         Node {
             position_type: PositionType::Relative,

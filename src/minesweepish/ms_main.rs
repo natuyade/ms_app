@@ -5,7 +5,7 @@ use crate::minesweepish::click_event::{check_remaining, click_event};
 use crate::minesweepish::gameclear::{clean_gameclear, setup_gameclear, back_to_title_button};
 use crate::minesweepish::gameover::{back_button, clean_gameover, setup_gameover};
 use crate::minesweepish::setup_msmap::{clean_ms, setup_ms};
-use crate::minesweepish::title::{clean_title, map_setting, setup_title, title_buttons, volume_slider, volume_settings};
+use crate::minesweepish::title::{clean_title, setup_title, title_buttons, volume_slider, volume_settings};
 use crate::minesweepish::title_bg::title_rotate;
 
 #[derive(States, Debug, Clone, PartialEq, Eq, Hash, Default)]
@@ -81,7 +81,6 @@ pub fn ms_main() {
                 volume_slider.run_if(in_state(AppState::Title)),
                 volume_settings.after(volume_slider).run_if(in_state(AppState::Title)),
                 title_buttons.run_if(in_state(AppState::Title)),
-                map_setting.run_if(in_state(AppState::Title)),
                 click_event.run_if(in_state(AppState::Playing)),
                 check_remaining.after(click_event).run_if(in_state(AppState::Playing)),
                 back_button.run_if(in_state(AppState::GameOver)),
@@ -196,6 +195,7 @@ pub struct SoundsLoader {
     pub setting: Handle<AudioSource>,
     pub open_cell: Handle<AudioSource>,
     pub failed: Handle<AudioSource>,
+    pub clear: Handle<AudioSource>,
 }
 
 #[derive(Resource, Default)]
@@ -229,6 +229,7 @@ fn load_assets(
     sounds_loader.setting = asset_server.load("sounds/setting_button.wav");
     sounds_loader.open_cell = asset_server.load("sounds/open_cell.wav");
     sounds_loader.failed = asset_server.load("sounds/failed.wav");
+    sounds_loader.clear = asset_server.load("sounds/clear.wav");
 
     // images
     images_loader.bgm = asset_server.load("images/bgm_button.webp");
@@ -259,8 +260,8 @@ fn load_assets(
     atlas_handler.setting = atlas_layout.add(
         TextureAtlasLayout::from_grid(
             UVec2::new(24,32),
-            4,
             3,
+            4,
             None,
             None,
         )
@@ -313,6 +314,7 @@ pub struct MapInfo {
 pub enum TitleButtonType {
     StartButton,
     BgmToggleButton,
+    SettingButton,
 }
 
 #[derive(Resource, Default)]
@@ -332,7 +334,7 @@ pub struct VolumeValue {
     pub se: f32,
 }
 
-#[derive(Component)]
+#[derive(Component, Clone, Copy)]
 pub enum SettingType {
     Width,
     Height,

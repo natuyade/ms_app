@@ -87,507 +87,183 @@ pub fn setup_title(
                     height: Val::Percent(100.0),
                     ..default()
                 },
-                )).with_children(|wrapper|{
-
-                // size width
-                wrapper.spawn((
-                    Node {
-                        position_type: PositionType::Relative,
-                        display: Display::Flex,
-                        justify_content: JustifyContent::Center,
-                        align_items: AlignItems::Center,
-                        left: Val::Px(0.0),
-                        width: Val::Percent(100.0),
-                        height: Val::Px(32.0),
-                        ..default()
-                    },
-                    BackgroundColor(Color::srgb(0.3, 0.3, 0.5)),
-                )).with_children(|container|{
-
-                    // setting type
-                    container.spawn((
-                        Node {
-                            position_type: PositionType::Relative,
-                            display: Display::Flex,
-                            justify_content: JustifyContent::Center,
-                            align_items: AlignItems::Center,
-                            width: Val::Px(112.0),
-                            height: Val::Px(32.0),
-                            ..default()
-                        },
-                        children![(
-                            Text::new("Cell\nWidthSize"),
-                            TextLayout::new_with_justify(Justify::Center),
-                            TextFont {
-                                font: font.uni_font.clone(),
-                                font_size: 16.0,
-                                ..default()
-                            },
-                        )],
-                        ));
-
-                    // setting buttons
-                    container
-                        .spawn((
+            ))
+                .with_children(|wrapper|{
+                    for (option_name, init_number, setting_type) in [
+                        ("Cell\nWidthSize", map_width.to_string(), SettingType::Width),
+                        ("Cell\nHeightSize", map_height.to_string(), SettingType::Height),
+                        ("Bomb\nPercent", bomb_per.to_string(), SettingType::BombPercent)
+                    ]
+                    {
+                        // size width
+                        wrapper.spawn((
                             Node {
                                 position_type: PositionType::Relative,
                                 display: Display::Flex,
                                 justify_content: JustifyContent::Center,
                                 align_items: AlignItems::Center,
-                                width: Val::Px(128.0),
+                                left: Val::Px(0.0),
+                                width: Val::Percent(100.0),
                                 height: Val::Px(32.0),
                                 ..default()
                             },
-                            BackgroundColor(Color::srgb(0.3, 0.3, 0.3)),
+                            BackgroundColor(Color::srgb(0.3, 0.3, 0.5)),
                         ))
-                        .with_children(|button| {
-                            button.spawn((
-                                Text::new(map_width.to_string()),
-                                TextFont {
-                                    font: font.uni_font.clone(),
-                                    font_size: 24.0,
-                                    ..default()
-                                },
-                                SettingType::Width,
-                            ));
-
-                            button.spawn((
-                                Node {
-                                    position_type: PositionType::Absolute,
-                                    display: Display::Flex,
-                                    justify_content: JustifyContent::Center,
-                                    align_items: AlignItems::Center,
-                                    left: Val::ZERO,
-                                    width: Val::Px(24.0),
-                                    height: Val::Percent(100.0),
-                                    border: UiRect {
-                                        bottom: Val::Px(2.0),
+                            .with_children(|container| {
+                                // setting type
+                                container.spawn((
+                                    Node {
+                                        position_type: PositionType::Relative,
+                                        display: Display::Flex,
+                                        justify_content: JustifyContent::Center,
+                                        align_items: AlignItems::Center,
+                                        width: Val::Px(112.0),
+                                        height: Val::Px(32.0),
                                         ..default()
                                     },
-                                    ..default()
-                                },
-                                Button,
-                                SettingType::Width,
-                                SettingButton::TenDown,
-                                BackgroundColor(Color::srgb(0.0, 0.4, 0.0)),
-                                children![(
-                            Text::new("-10"),
-                            TextFont {
-                                font: font.uni_font.clone(),
-                                font_size: 16.0,
-                                ..default()
-                            },
-                            )],
-                            ));
-                            button.spawn((
-                                Node {
-                                    position_type: PositionType::Absolute,
-                                    display: Display::Flex,
-                                    justify_content: JustifyContent::Center,
-                                    align_items: AlignItems::Center,
-                                    left: Val::Px(24.0),
-                                    width: Val::Px(24.0),
-                                    height: Val::Percent(100.0),
-                                    ..default()
-                                },
-                                Button,
-                                SettingType::Width,
-                                SettingButton::OneDown,
-                                BackgroundColor(Color::srgb(0.0, 0.4, 0.0)),
-                                children![(
-                            Text::new("-1"),
-                            TextFont {
-                                font: font.uni_font.clone(),
-                                font_size: 16.0,
-                                ..default()
-                            },
-                            )],
-                            ));
-                            button.spawn((
-                                Node {
-                                    position_type: PositionType::Absolute,
-                                    display: Display::Flex,
-                                    justify_content: JustifyContent::Center,
-                                    align_items: AlignItems::Center,
-                                    right: Val::Px(24.0),
-                                    width: Val::Px(24.0),
-                                    height: Val::Percent(100.0),
-                                    ..default()
-                                },
-                                Button,
-                                SettingType::Width,
-                                SettingButton::OneUp,
-                                BackgroundColor(Color::srgb(0.0, 0.4, 0.0)),
-                                children![(
-                            Text::new("+1"),
-                            TextFont {
-                                font: font.uni_font.clone(),
-                                font_size: 16.0,
-                                ..default()
-                            },
-                            )],
-                            ));
-                            button.spawn((
-                                Node {
-                                    position_type: PositionType::Absolute,
-                                    display: Display::Flex,
-                                    justify_content: JustifyContent::Center,
-                                    align_items: AlignItems::Center,
-                                    right: Val::ZERO,
-                                    width: Val::Px(24.0),
-                                    height: Val::Percent(100.0),
-                                    ..default()
-                                },
-                                Button,
-                                SettingType::Width,
-                                SettingButton::TenUp,
-                                BackgroundColor(Color::srgb(0.0, 0.4, 0.0)),
-                                children![(
-                            Text::new("+10"),
-                            TextFont {
-                                font: font.uni_font.clone(),
-                                font_size: 16.0,
-                                ..default()
-                            },
-                            )],
-                            ));
-                        });
+                                    children![(
+                                        Text::new(option_name),
+                                        TextLayout::new_with_justify(Justify::Center),
+                                        TextFont {
+                                            font: font.uni_font.clone(),
+                                            font_size: 16.0,
+                                            ..default()
+                                        },
+                                    )],
+                                ));
 
-                });
-
-
-                // size height
-                wrapper.spawn((
-                    Node {
-                        position_type: PositionType::Relative,
-                        display: Display::Flex,
-                        justify_content: JustifyContent::Center,
-                        align_items: AlignItems::Center,
-                        left: Val::Px(0.0),
-                        width: Val::Percent(100.0),
-                        height: Val::Px(32.0),
-                        ..default()
-                    },
-                    BackgroundColor(Color::srgb(0.3, 0.3, 0.5)),
-                )).with_children(|container|{
-
-                    // setting type
-                    container.spawn((
-                        Node {
-                            position_type: PositionType::Relative,
-                            display: Display::Flex,
-                            justify_content: JustifyContent::Center,
-                            align_items: AlignItems::Center,
-                            width: Val::Px(112.0),
-                            height: Val::Px(32.0),
-                            margin: UiRect::all(Val::ZERO),
-                            ..default()
-                        },
-                        children![(
-                            Text::new("Cell\nHeightSize"),
-                            TextLayout::new_with_justify(Justify::Center),
-                            TextFont {
-                                font: font.uni_font.clone(),
-                                font_size: 16.0,
-                                ..default()
-                            },
-                        )],
-                    ));
-
-                    // setting buttons
-                    container
-                        .spawn((
-                            Node {
-                                position_type: PositionType::Relative,
-                                display: Display::Flex,
-                                justify_content: JustifyContent::Center,
-                                align_items: AlignItems::Center,
-                                width: Val::Px(128.0),
-                                height: Val::Px(32.0),
-                                ..default()
-                            },
-                            BackgroundColor(Color::srgb(0.3, 0.3, 0.3)),
-                        ))
-                        .with_children(|button| {
-                            button.spawn((
-                                Text::new(map_height.to_string()),
-                                TextFont {
-                                    font: font.uni_font.clone(),
-                                    font_size: 24.0,
-                                    ..default()
-                                },
-                                SettingType::Height,
-                            ));
-
-                            button.spawn((
-                                Node {
-                                    position_type: PositionType::Absolute,
-                                    display: Display::Flex,
-                                    justify_content: JustifyContent::Center,
-                                    align_items: AlignItems::Center,
-                                    left: Val::ZERO,
-                                    width: Val::Px(24.0),
-                                    height: Val::Percent(100.0),
-                                    border: UiRect {
-                                        bottom: Val::Px(2.0),
+                                // setting buttons
+                                container.spawn((
+                                    Node {
+                                        position_type: PositionType::Relative,
+                                        display: Display::Flex,
+                                        justify_content: JustifyContent::Center,
+                                        align_items: AlignItems::Center,
+                                        width: Val::Px(128.0),
+                                        height: Val::Px(32.0),
                                         ..default()
                                     },
-                                    ..default()
-                                },
-                                Button,
-                                SettingType::Height,
-                                SettingButton::TenDown,
-                                BackgroundColor(Color::srgb(0.0, 0.4, 0.0)),
-                                children![(
-                            Text::new("-10"),
-                            TextFont {
-                                font: font.uni_font.clone(),
-                                font_size: 16.0,
-                                ..default()
-                            },
-                            )],
-                            ));
-                            button.spawn((
-                                Node {
-                                    position_type: PositionType::Absolute,
-                                    display: Display::Flex,
-                                    justify_content: JustifyContent::Center,
-                                    align_items: AlignItems::Center,
-                                    left: Val::Px(24.0),
-                                    width: Val::Px(24.0),
-                                    height: Val::Percent(100.0),
-                                    ..default()
-                                },
-                                Button,
-                                SettingType::Height,
-                                SettingButton::OneDown,
-                                BackgroundColor(Color::srgb(0.0, 0.4, 0.0)),
-                                children![(
-                            Text::new("-1"),
-                            TextFont {
-                                font: font.uni_font.clone(),
-                                font_size: 16.0,
-                                ..default()
-                            },
-                            )],
-                            ));
-                            button.spawn((
-                                Node {
-                                    position_type: PositionType::Absolute,
-                                    display: Display::Flex,
-                                    justify_content: JustifyContent::Center,
-                                    align_items: AlignItems::Center,
-                                    right: Val::Px(24.0),
-                                    width: Val::Px(24.0),
-                                    height: Val::Percent(100.0),
-                                    ..default()
-                                },
-                                Button,
-                                SettingType::Height,
-                                SettingButton::OneUp,
-                                BackgroundColor(Color::srgb(0.0, 0.4, 0.0)),
-                                children![(
-                            Text::new("+1"),
-                            TextFont {
-                                font: font.uni_font.clone(),
-                                font_size: 16.0,
-                                ..default()
-                            },
-                            )],
-                            ));
-                            button.spawn((
-                                Node {
-                                    position_type: PositionType::Absolute,
-                                    display: Display::Flex,
-                                    justify_content: JustifyContent::Center,
-                                    align_items: AlignItems::Center,
-                                    right: Val::ZERO,
-                                    width: Val::Px(24.0),
-                                    height: Val::Percent(100.0),
-                                    ..default()
-                                },
-                                Button,
-                                SettingType::Height,
-                                SettingButton::TenUp,
-                                BackgroundColor(Color::srgb(0.0, 0.4, 0.0)),
-                                children![(
-                            Text::new("+10"),
-                            TextFont {
-                                font: font.uni_font.clone(),
-                                font_size: 16.0,
-                                ..default()
-                            },
-                            )],
-                            ));
-                        });
+                                    BackgroundColor(Color::srgb(0.3, 0.3, 0.3)),
+                                ))
+                                    .with_children(|button| {
+                                        button.spawn((
+                                            Text::new(init_number),
+                                            TextFont {
+                                                font: font.uni_font.clone(),
+                                                font_size: 24.0,
+                                                ..default()
+                                            },
+                                            setting_type,
+                                        ));
 
-                });
+                                        button.spawn((
+                                            Node {
+                                                position_type: PositionType::Absolute,
+                                                display: Display::Flex,
+                                                justify_content: JustifyContent::Center,
+                                                align_items: AlignItems::Center,
+                                                left: Val::ZERO,
+                                                width: Val::Px(24.0),
+                                                height: Val::Percent(100.0),
+                                                ..default()
+                                            },
+                                            Button,
+                                            TitleButtonType::SettingButton,
+                                            setting_type,
+                                            SettingButton::TenDown,
+                                            BackgroundColor(Color::srgb(0.0, 0.4, 0.0)),
+                                            children![
+                                                ImageNode::from_atlas_image(
+                                                    image.setting.clone(),
+                                                    TextureAtlas {
+                                                        layout: atlas_layout.setting.clone(),
+                                                        index: 0,
+                                                    },
+                                                ),
+                                            ],
+                                        ));
+                                        button.spawn((
+                                            Node {
+                                                position_type: PositionType::Absolute,
+                                                display: Display::Flex,
+                                                justify_content: JustifyContent::Center,
+                                                align_items: AlignItems::Center,
+                                                left: Val::Px(24.0),
+                                                width: Val::Px(24.0),
+                                                height: Val::Percent(100.0),
+                                                ..default()
+                                            },
+                                            Button,
+                                            TitleButtonType::SettingButton,
+                                            setting_type,
+                                            SettingButton::OneDown,
+                                            BackgroundColor(Color::srgb(0.0, 0.4, 0.0)),
+                                            children![
+                                                ImageNode::from_atlas_image(
+                                                    image.setting.clone(),
+                                                    TextureAtlas {
+                                                        layout: atlas_layout.setting.clone(),
+                                                        index: 3,
+                                                    },
+                                                ),
+                                            ],
+                                        ));
+                                        button.spawn((
+                                            Node {
+                                                position_type: PositionType::Absolute,
+                                                display: Display::Flex,
+                                                justify_content: JustifyContent::Center,
+                                                align_items: AlignItems::Center,
+                                                right: Val::Px(24.0),
+                                                width: Val::Px(24.0),
+                                                height: Val::Percent(100.0),
+                                                ..default()
+                                            },
+                                            Button,
+                                            TitleButtonType::SettingButton,
+                                            setting_type,
+                                            SettingButton::OneUp,
+                                            BackgroundColor(Color::srgb(0.0, 0.4, 0.0)),
+                                            children![
+                                                ImageNode::from_atlas_image(
+                                                    image.setting.clone(),
+                                                    TextureAtlas {
+                                                        layout: atlas_layout.setting.clone(),
+                                                        index: 6,
+                                                    },
+                                                ),
+                                            ],
+                                        ));
+                                        button.spawn((
+                                            Node {
+                                                position_type: PositionType::Absolute,
+                                                display: Display::Flex,
+                                                justify_content: JustifyContent::Center,
+                                                align_items: AlignItems::Center,
+                                                right: Val::ZERO,
+                                                width: Val::Px(24.0),
+                                                height: Val::Percent(100.0),
+                                                ..default()
+                                            },
+                                            Button,
+                                            TitleButtonType::SettingButton,
+                                            setting_type,
+                                            SettingButton::TenUp,
+                                            BackgroundColor(Color::srgb(0.0, 0.4, 0.0)),
+                                            children![
+                                                ImageNode::from_atlas_image(
+                                                    image.setting.clone(),
+                                                    TextureAtlas {
+                                                        layout: atlas_layout.setting.clone(),
+                                                        index: 9,
+                                                    },
+                                                ),
+                                            ],
+                                        ));
+                                    });
+                            });
 
-                // bomb percent
-                wrapper.spawn((
-                    Node {
-                        position_type: PositionType::Relative,
-                        display: Display::Flex,
-                        justify_content: JustifyContent::Center,
-                        align_items: AlignItems::Center,
-                        width: Val::Percent(100.0),
-                        height: Val::Px(32.0),
-                        ..default()
-                    },
-                    BackgroundColor(Color::srgb(0.3, 0.3, 0.5)),
-                )).with_children(|container|{
-
-                    // setting type
-                    container.spawn((
-                        Node {
-                            position_type: PositionType::Relative,
-                            display: Display::Flex,
-                            justify_content: JustifyContent::Center,
-                            align_items: AlignItems::Center,
-                            width: Val::Px(112.0),
-                            height: Val::Px(32.0),
-                            ..default()
-                        },
-                        children![(
-                            Text::new("Bomb\nPercent"),
-                            TextLayout::new_with_justify(Justify::Center),
-                            TextFont {
-                                font: font.uni_font.clone(),
-                                font_size: 16.0,
-                                ..default()
-                            },
-                        )],
-                    ));
-
-                    // setting buttons
-                    container
-                        .spawn((
-                            Node {
-                                position_type: PositionType::Relative,
-                                display: Display::Flex,
-                                justify_content: JustifyContent::Center,
-                                align_items: AlignItems::Center,
-                                right: Val::Px(0.0),
-                                width: Val::Px(128.0),
-                                height: Val::Px(32.0),
-                                ..default()
-                            },
-                            BackgroundColor(Color::srgb(0.3, 0.3, 0.3)),
-                        ))
-                        .with_children(|button| {
-                            button.spawn((
-                                Text::new(bomb_per.to_string()),
-                                TextFont {
-                                    font: font.uni_font.clone(),
-                                    font_size: 24.0,
-                                    ..default()
-                                },
-                                SettingType::BombPercent,
-                            ));
-
-                            button.spawn((
-                                Node {
-                                    position_type: PositionType::Absolute,
-                                    display: Display::Flex,
-                                    justify_content: JustifyContent::Center,
-                                    align_items: AlignItems::Center,
-                                    left: Val::ZERO,
-                                    width: Val::Px(24.0),
-                                    height: Val::Percent(100.0),
-                                    border: UiRect {
-                                        bottom: Val::Px(0.0),
-                                        ..default()
-                                    },
-                                    ..default()
-                                },
-                                Button,
-                                SettingType::BombPercent,
-                                SettingButton::TenDown,
-                                BackgroundColor(Color::srgb(0.0, 0.4, 0.0)),
-                                children![(
-                            Text::new("-10"),
-                            TextFont {
-                                font: font.uni_font.clone(),
-                                font_size: 16.0,
-                                ..default()
-                            },
-                            )],
-                            ));
-                            button.spawn((
-                                Node {
-                                    position_type: PositionType::Absolute,
-                                    display: Display::Flex,
-                                    justify_content: JustifyContent::Center,
-                                    align_items: AlignItems::Center,
-                                    left: Val::Px(24.0),
-                                    width: Val::Px(24.0),
-                                    height: Val::Percent(100.0),
-                                    ..default()
-                                },
-                                Button,
-                                SettingType::BombPercent,
-                                SettingButton::OneDown,
-                                BackgroundColor(Color::srgb(0.0, 0.4, 0.0)),
-                                children![(
-                            Text::new("-1"),
-                            TextFont {
-                                font: font.uni_font.clone(),
-                                font_size: 16.0,
-                                ..default()
-                            },
-                            )],
-                            ));
-                            button.spawn((
-                                Node {
-                                    position_type: PositionType::Absolute,
-                                    display: Display::Flex,
-                                    justify_content: JustifyContent::Center,
-                                    align_items: AlignItems::Center,
-                                    right: Val::Px(24.0),
-                                    width: Val::Px(24.0),
-                                    height: Val::Percent(100.0),
-                                    ..default()
-                                },
-                                Button,
-                                SettingType::BombPercent,
-                                SettingButton::OneUp,
-                                BackgroundColor(Color::srgb(0.0, 0.4, 0.0)),
-                                children![(
-                            Text::new("+1"),
-                            TextFont {
-                                font: font.uni_font.clone(),
-                                font_size: 16.0,
-                                ..default()
-                            },
-                            )],
-                            ));
-                            button.spawn((
-                                Node {
-                                    position_type: PositionType::Absolute,
-                                    display: Display::Flex,
-                                    justify_content: JustifyContent::Center,
-                                    align_items: AlignItems::Center,
-                                    right: Val::ZERO,
-                                    width: Val::Px(24.0),
-                                    height: Val::Percent(100.0),
-                                    ..default()
-                                },
-                                Button,
-                                SettingType::BombPercent,
-                                SettingButton::TenUp,
-                                BackgroundColor(Color::srgb(0.0, 0.4, 0.0)),
-                                children![(
-                            Text::new("+10"),
-                            TextFont {
-                                font: font.uni_font.clone(),
-                                font_size: 16.0,
-                                ..default()
-                            },
-                            )],
-                            ));
-                        });
-
-                });
+                    }
             });
 
             // bgm toggle button
@@ -632,27 +308,27 @@ pub fn setup_title(
                 },
                 TextColor(Color::srgb(1.,1.,0.)),
                 children![(
-            Node {
-                width: Val::Percent(volume.bgm * 100.),
-                height: Val::Percent(100.0),
-                justify_content: JustifyContent::End,
-                align_items: AlignItems::Center,
-                overflow: Overflow::clip(),
-                ..default()
-            },
-            BackgroundColor (Color::srgb(0.,1.,0.)),
-            Text::new("BGM"),
-            TextFont {
-                font: font.uni_font.clone(),
-                font_size: 24.,
-                ..default()
-            },
-            TextColor(Color::srgb(1.,0.,1.)),
-            TextShadow {
-                offset: Vec2::new(1.,1.),
-                color: Color::BLACK,
-            },
-        )],
+                    Node {
+                        width: Val::Percent(volume.bgm * 100.),
+                        height: Val::Percent(100.0),
+                        justify_content: JustifyContent::End,
+                        align_items: AlignItems::Center,
+                        overflow: Overflow::clip(),
+                        ..default()
+                    },
+                    BackgroundColor (Color::srgb(0.,1.,0.)),
+                    Text::new("BGM"),
+                    TextFont {
+                        font: font.uni_font.clone(),
+                        font_size: 24.,
+                        ..default()
+                    },
+                    TextColor(Color::srgb(1.,0.,1.)),
+                    TextShadow {
+                        offset: Vec2::new(1.,1.),
+                        color: Color::BLACK,
+                    },
+                )],
             ));
 
             parent.spawn((
@@ -676,27 +352,27 @@ pub fn setup_title(
                 },
                 TextColor(Color::srgb(1.,1.,0.)),
                 children![(
-            Node {
-                width: Val::Percent(volume.se * 100.),
-                height: Val::Percent(100.0),
-                justify_content: JustifyContent::End,
-                align_items: AlignItems::Center,
-                overflow: Overflow::clip(),
-                ..default()
-            },
-            BackgroundColor (Color::srgb(0.,1.,1.)),
-            Text::new("SE"),
-            TextFont {
-                font: font.uni_font.clone(),
-                font_size: 24.,
-                ..default()
-            },
-            TextColor(Color::srgb(1.,0.,1.)),
-            TextShadow {
-                offset: Vec2::new(1.,1.),
-                color: Color::BLACK,
-            },
-        )],
+                    Node {
+                        width: Val::Percent(volume.se * 100.),
+                        height: Val::Percent(100.0),
+                        justify_content: JustifyContent::End,
+                        align_items: AlignItems::Center,
+                        overflow: Overflow::clip(),
+                        ..default()
+                    },
+                    BackgroundColor (Color::srgb(0.,1.,1.)),
+                    Text::new("SE"),
+                    TextFont {
+                        font: font.uni_font.clone(),
+                        font_size: 24.,
+                        ..default()
+                    },
+                    TextColor(Color::srgb(1.,0.,1.)),
+                    TextShadow {
+                        offset: Vec2::new(1.,1.),
+                        color: Color::BLACK,
+                    },
+                )],
             ));
         });
 }
@@ -752,11 +428,14 @@ pub fn title_buttons(
     sounds: Res<SoundsLoader>,
     volume: Res<VolumeValue>,
     mut bgm_stats: ResMut<BgmState>,
-    mut ints_query: Query<(&Interaction, &TitleButtonType, &Children), (With<Button>, Without<SettingButton>, Changed<Interaction>)>,
+    // Changedでinteraction処理がされたentityだけを指定でき,離されたintsも受け取れるため処理が毎フレーム行われない.
+    mut ints_query: Query<(&Interaction, &TitleButtonType, &Children, Option<&SettingType>, Option<&SettingButton>), (With<Button>, Changed<Interaction>)>,
+    mut mapinfo: ResMut<MapInfo>,
+    mut text_query: Query<(&SettingType, &mut Text)>,
     mut image_query: Query<&mut ImageNode>,
     mut next_state: ResMut<NextState<AppState>>,
 ) {
-    for (ints, title_buttons, children) in &mut ints_query {
+    for (ints, title_buttons, children, setting_type, setting_button) in &mut ints_query {
         if let Ok(mut image) = image_query.get_mut(children[0]) {
 
             if let Some(atlas) = &mut image.texture_atlas {
@@ -764,9 +443,15 @@ pub fn title_buttons(
                     // start button [index = 0~2]
                     TitleButtonType::StartButton => {
                         match *ints {
+
+                            Interaction::None => {
+                                atlas.index = 0;
+                            }
+
                             Interaction::Hovered => {
                                 atlas.index = 1;
-                            },
+                            }
+
                             Interaction::Pressed => {
                                 atlas.index = 2;
                                 commands.spawn((
@@ -778,22 +463,29 @@ pub fn title_buttons(
                                     },
                                 ));
                                 next_state.set(AppState::Playing);
-                            },
-                            Interaction::None => {
-                                atlas.index = 0;
-                            },
+                            }
                         }
                     }
                     // bgm button [index = normal:0~2, muted:3~5]
                     TitleButtonType::BgmToggleButton => {
                         match *ints {
+
+                            Interaction::None => {
+                                if bgm_stats.playingbgm.is_some() {
+                                    atlas.index = 0;
+                                } else {
+                                    atlas.index = 3;
+                                }
+                            }
+
                             Interaction::Hovered => {
                                 if bgm_stats.playingbgm.is_some() {
                                     atlas.index = 1;
                                 } else {
                                     atlas.index = 4;
                                 }
-                            },
+                            }
+
                             Interaction::Pressed => {
                                 if let Some(entity) = bgm_stats.playingbgm {
                                     atlas.index = 5;
@@ -811,80 +503,86 @@ pub fn title_buttons(
                                     )).id();
                                     bgm_stats.playingbgm = Some(entity);
                                 }
-                            },
-                            Interaction::None => {
-                                if bgm_stats.playingbgm.is_some() {
-                                    atlas.index = 0;
-                                } else {
-                                    atlas.index = 3;
-                                }
-                            },
+                            }
                         }
+                    }
+                    // bgm button [index = -10:0~2, -1:3~5, +1:6~8, +10:9~11]
+                    TitleButtonType::SettingButton => {
+                        use crate::minesweepish::ms_main::{SettingButton::*, SettingType::*};
+                        let Some(types) = setting_type else { continue };
+                        let Some(buttons) = setting_button else { continue };
+
+                            if *ints == Interaction::None {
+                                atlas.index = match buttons {
+                                    TenDown => 0,
+                                    OneDown => 3,
+                                    OneUp => 6,
+                                    TenUp => 9,
+                                }
+                            }
+
+                            if *ints == Interaction::Hovered {
+                                atlas.index = match buttons {
+                                    TenDown => 1,
+                                    OneDown => 4,
+                                    OneUp => 7,
+                                    TenUp => 10,
+                                }
+                            }
+
+                            if *ints == Interaction::Pressed {
+
+                                atlas.index = match buttons {
+                                    TenDown => 2,
+                                    OneDown => 5,
+                                    OneUp => 8,
+                                    TenUp => 11,
+                                };
+
+                                commands.spawn((
+                                    AudioPlayer::new(sounds.setting.clone()),
+                                    PlaybackSettings {
+                                        mode: Despawn,
+                                        volume: Volume::Linear(volume.se),
+                                        ..default()
+                                    },
+                                ));
+
+                                match (types, buttons) {
+                                    (Width, TenDown) => mapinfo.map_width = (mapinfo.map_width - 10).clamp(1, 20),
+                                    (Width, OneDown) => mapinfo.map_width = (mapinfo.map_width - 1).clamp(1, 20),
+                                    (Width, OneUp) => mapinfo.map_width = (mapinfo.map_width + 1).clamp(1, 20),
+                                    (Width, TenUp) => mapinfo.map_width = (mapinfo.map_width + 10).clamp(1, 20),
+
+                                    (Height, TenDown) => mapinfo.map_height = (mapinfo.map_height - 10).clamp(1, 20),
+                                    (Height, OneDown) => mapinfo.map_height = (mapinfo.map_height - 1).clamp(1, 20),
+                                    (Height, OneUp) => mapinfo.map_height = (mapinfo.map_height + 1).clamp(1, 20),
+                                    (Height, TenUp) => mapinfo.map_height = (mapinfo.map_height + 10).clamp(1, 20),
+
+                                    (BombPercent, TenDown) => mapinfo.bomb_percent = (mapinfo.bomb_percent - 10).clamp(1, 99),
+                                    (BombPercent, OneDown) => mapinfo.bomb_percent = (mapinfo.bomb_percent - 1).clamp(1, 99),
+                                    (BombPercent, OneUp) => mapinfo.bomb_percent = (mapinfo.bomb_percent + 1).clamp(1, 99),
+                                    (BombPercent, TenUp) => mapinfo.bomb_percent = (mapinfo.bomb_percent + 10).clamp(1, 99),
+                                }
+
+                                for (text_types, mut text) in &mut text_query {
+                                    match text_types {
+                                        Width => {
+                                            **text = mapinfo.map_width.to_string()
+                                        }
+                                        Height => {
+                                            **text = mapinfo.map_height.to_string()
+                                        }
+                                        BombPercent => {
+                                            **text = mapinfo.bomb_percent.to_string()
+                                        }
+                                    }
+                                }
+                            }
                     }
                 }
             };
         }
-    }
-}
-
-pub fn map_setting(
-    mut commands: Commands,
-    sounds: Res<SoundsLoader>,
-    volume: Res<VolumeValue>,
-    // Changedでinteraction処理がされたentityだけを指定でき,離されたintsも受け取れるため処理が毎フレーム行われない.
-    mut buttons_query: Query<(&Interaction, &SettingType, &SettingButton, &mut BorderColor, &mut BackgroundColor, &mut Node), Changed<Interaction>>,
-    mut text_query: Query<(&SettingType, &mut Text), (With<SettingType>, Without<SettingButton>)>,
-    mut settings: ResMut<MapInfo>,
-) {
-    for (ints, types, buttons, mut bordercolor, mut bgcolor, mut node) in &mut buttons_query {
-        if *ints == Interaction::Pressed {
-            commands.spawn((
-                AudioPlayer::new(sounds.setting.clone()),
-                PlaybackSettings {
-                    mode: Despawn,
-                    volume: Volume::Linear(volume.se),
-                    ..default()
-                },
-            ));
-
-            use crate::minesweepish::ms_main::{SettingButton::*, SettingType::*};
-
-            match (types, buttons) {
-                (Width, TenDown) => settings.map_width = (settings.map_width - 10).clamp(1, 20),
-                (Width, OneDown) => settings.map_width = (settings.map_width - 1).clamp(1, 20),
-                (Width, OneUp) => settings.map_width = (settings.map_width + 1).clamp(1, 20),
-                (Width, TenUp) => settings.map_width = (settings.map_width + 10).clamp(1, 20),
-
-                (Height, TenDown) => settings.map_height = (settings.map_height - 10).clamp(1, 20),
-                (Height, OneDown) => settings.map_height = (settings.map_height - 1).clamp(1, 20),
-                (Height, OneUp) => settings.map_height = (settings.map_height + 1).clamp(1, 20),
-                (Height, TenUp) => settings.map_height = (settings.map_height + 10).clamp(1, 20),
-
-                (BombPercent, TenDown) => settings.bomb_percent = (settings.bomb_percent - 10).clamp(1, 99),
-                (BombPercent, OneDown) => settings.bomb_percent = (settings.bomb_percent - 1).clamp(1, 99),
-                (BombPercent, OneUp) => settings.bomb_percent = (settings.bomb_percent + 1).clamp(1, 99),
-                (BombPercent, TenUp) => settings.bomb_percent = (settings.bomb_percent + 10).clamp(1, 99),
-            }
-
-            for (types, mut text) in &mut text_query {
-                match types {
-                    Width => *text = Text::from(settings.map_width.to_string()),
-                    Height => *text = Text::from(settings.map_height.to_string()),
-                    BombPercent => *text = Text::from(settings.bomb_percent.to_string()),
-                }
-            }
-        }
-
-        if *ints == Interaction::Hovered {
-            *bgcolor = BackgroundColor(Color::srgb(0.0, 0.6, 0.0));
-            *bordercolor = BorderColor::all(Color::BLACK);
-            node.border = UiRect { bottom: Val::Px(2.0), ..default() };
-        }
-        if *ints == Interaction::None {
-            *bgcolor = BackgroundColor(Color::srgb(0.0, 0.4, 0.0));
-            node.border = UiRect { ..default() };
-        }
-
     }
 }
 
