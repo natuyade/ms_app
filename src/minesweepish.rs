@@ -5,4 +5,6 @@ pub(crate) mod setup_msmap;
 pub(crate) mod click_event;
 pub(crate) mod gameover;
 pub(crate) mod gameclear;
+mod start_game;
 mod setup;
+mod assets_loader;

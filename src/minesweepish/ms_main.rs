@@ -1,12 +1,51 @@
 use bevy::prelude::*;
 
-use crate::minesweepish::setup::enter_title;
-use crate::minesweepish::click_event::{check_remaining, click_event};
-use crate::minesweepish::gameclear::{clean_gameclear, setup_gameclear, back_to_title_button};
-use crate::minesweepish::gameover::{back_button, clean_gameover, setup_gameover};
-use crate::minesweepish::setup_msmap::{clean_ms, setup_ms};
-use crate::minesweepish::title::{clean_title, setup_title, title_buttons, volume_slider, volume_settings};
+// setup camera & title_bg
+use crate::minesweepish::setup::setup_camera;
+
+// load all assets
+use crate::minesweepish::assets_loader::load_assets;
+
+// enter title screen after loaded assets
+use crate::minesweepish::start_game::enter_title;
+
+// Title screen
+use crate::minesweepish::title::{
+    setup_title,
+    title_buttons,
+    volume_slider,
+    volume_settings,
+    clean_title
+};
+
+// rotate bg model
 use crate::minesweepish::title_bg::title_rotate;
+
+// Game screen
+use crate::minesweepish::setup_msmap::{
+    setup_ms,
+    clean_ms
+};
+
+// cell click event
+use crate::minesweepish::click_event::{
+    click_event,
+    check_remaining
+};
+
+// Game Over screen
+use crate::minesweepish::gameover::{
+    setup_gameover,
+    back_button,
+    clean_gameover
+};
+
+// Game Clear screen
+use crate::minesweepish::gameclear::{
+    setup_gameclear,
+    back_to_title_button,
+    clean_gameclear
+};
 
 #[derive(States, Debug, Clone, PartialEq, Eq, Hash, Default)]
 pub enum AppState {
@@ -90,99 +129,6 @@ pub fn ms_main() {
         .run();
 }
 
-fn setup_camera(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.spawn((
-        Camera3d::default(),
-        Projection::Perspective(PerspectiveProjection {
-            fov: std::f32::consts::PI / 1.8,
-            near: 0.1,
-            far: 64.0,
-            ..default()
-        }),
-        Camera {
-            order: 0,
-            ..default()
-        },
-        //Transform::from_xyz(-1.0, 9.74, -16.953),
-        Transform::from_xyz(0.0, 0.0, 0.0),
-    ));
-
-    commands.spawn((
-        SceneRoot(asset_server.load("models/title_screen/title.gltf#Scene0")),
-        Transform::from_xyz(0.0, -2.0, 0.0),
-        TitleModel,
-    )).with_children(|model|{
-        model.spawn((
-            PointLight {
-                intensity: 1600.0,
-                range: 100.0,
-                color: Color::srgb(1.0, 0.5, 0.2),
-                shadows_enabled: false,
-                radius: 0.2,
-                ..default()
-            },
-            Transform::from_xyz(0.5, 12.2, -17.9),
-            TitleModel,
-            ));
-        model.spawn((
-            PointLight {
-                intensity: 10000.0,
-                range: 100.0,
-                color: Color::srgb(1.0, 0.0, 0.0),
-                shadows_enabled: false,
-                radius: 100.0,
-                ..default()
-            },
-            Transform::from_xyz(-1.5, 12.9, -19.5),
-            TitleModel,
-        ));
-        model.spawn((
-            PointLight {
-                intensity: 10000.0,
-                range: 100.0,
-                color: Color::srgb(1.0, 0.0, 0.0),
-                shadows_enabled: false,
-                radius: 100.0,
-                ..default()
-            },
-            Transform::from_xyz(-1.5, 12.9, -22.5),
-            TitleModel,
-        ));
-        model.spawn((
-            PointLight {
-                intensity: 10000.0,
-                range: 100.0,
-                color: Color::srgb(1.0, 0.0, 0.0),
-                shadows_enabled: false,
-                radius: 100.0,
-                ..default()
-            },
-            Transform::from_xyz(-7.5, 12.9, -19.5),
-            TitleModel,
-        ));
-        model.spawn((
-            PointLight {
-                intensity: 10000.0,
-                range: 100.0,
-                color: Color::srgb(1.0, 0.0, 0.0),
-                shadows_enabled: false,
-                radius: 100.0,
-                ..default()
-            },
-            Transform::from_xyz(-7.5, 12.9, -22.5),
-            TitleModel,
-        ));
-    });
-
-    commands.spawn((
-        Camera2d::default(),
-        Camera {
-            order: 1,
-            ..default()
-        },
-    ));
-}
-
 #[derive(Resource, Default)]
 pub struct FontLoader {
     pub uni_font: Handle<Font>
@@ -210,62 +156,6 @@ pub struct AtlasLayout {
     pub bgm: Handle<TextureAtlasLayout>,
     pub start: Handle<TextureAtlasLayout>,
     pub setting: Handle<TextureAtlasLayout>,
-}
-
-fn load_assets(
-    mut font_loader: ResMut<FontLoader>,
-    mut sounds_loader: ResMut<SoundsLoader>,
-    mut images_loader: ResMut<ImageLoader>,
-    mut atlas_handler: ResMut<AtlasLayout>,
-    mut atlas_layout: ResMut<Assets<TextureAtlasLayout>>,
-    asset_server: Res<AssetServer>,
-) {
-    // font
-    font_loader.uni_font = asset_server.load("fonts/unifont-17.0.03.otf");
-
-    // sounds
-    sounds_loader.bgm = asset_server.load("sounds/bgm.wav");
-    sounds_loader.start = asset_server.load("sounds/start.wav");
-    sounds_loader.setting = asset_server.load("sounds/setting_button.wav");
-    sounds_loader.open_cell = asset_server.load("sounds/open_cell.wav");
-    sounds_loader.failed = asset_server.load("sounds/failed.wav");
-    sounds_loader.clear = asset_server.load("sounds/clear.wav");
-
-    // images
-    images_loader.bgm = asset_server.load("images/bgm_button.webp");
-    images_loader.start = asset_server.load("images/start_button.webp");
-    images_loader.setting = asset_server.load("images/setting_button.webp");
-
-    // atlas settings
-    atlas_handler.bgm = atlas_layout.add(
-        TextureAtlasLayout::from_grid(
-            UVec2::new(32,32),
-            3,
-            2,
-            None,
-            None,
-        )
-    );
-
-    atlas_handler.start = atlas_layout.add(
-        TextureAtlasLayout::from_grid(
-            UVec2::new(120,32),
-            3,
-            1,
-            None,
-            None,
-        )
-    );
-
-    atlas_handler.setting = atlas_layout.add(
-        TextureAtlasLayout::from_grid(
-            UVec2::new(24,32),
-            3,
-            4,
-            None,
-            None,
-        )
-    );
 }
 
 #[derive(Component)]
